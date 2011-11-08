@@ -22,7 +22,8 @@
         #define NPY_ALLOW_THREADS 0
 #endif
 
-
+/* CPHVB */
+#include "cphvbnumpy_types.h"
 
 /*
  * There are several places in the code where an array of dimensions
@@ -33,9 +34,9 @@
  * the places where static allocation is used would need to be changed
  * to dynamic (including inside of several structures)
  */
-
-#define NPY_MAXDIMS 32
-#define NPY_MAXARGS 32
+/* CPHVB - reduced default value to 8 (from 32) */
+#define NPY_MAXDIMS 8
+#define NPY_MAXARGS 8
 
 /* Used for Converter Functions "O&" code in ParseTuple */
 #define NPY_FAIL 0
@@ -74,7 +75,7 @@ enum NPY_TYPES {    NPY_BOOL=0,
                      * New 1.6 types appended, may be integrated
                      * into the above in 2.0.
                      */
-                    NPY_DATETIME, NPY_TIMEDELTA, NPY_HALF, 
+                    NPY_DATETIME, NPY_TIMEDELTA, NPY_HALF,
 
                     NPY_NTYPES,
                     NPY_NOTYPE,
@@ -649,6 +650,7 @@ typedef struct PyArrayObject {
         PyArray_Descr *descr;   /* Pointer to type structure */
         int flags;              /* Flags describing array -- see below */
         PyObject *weakreflist;  /* For weakreferences */
+        CPHVBNUMPY_ARRAY        /* CPHVB cphVB Array Extension */
 } PyArrayObject;
 
 #define NPY_AO PyArrayObject

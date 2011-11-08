@@ -796,6 +796,19 @@ def configuration(parent_package='',top_path=None):
         umath_src.append(generate_umath_templated_sources)
         umath_src.append(join('src', 'umath', 'funcs.inc.src'))
 
+    #CPHVB
+    config.add_include_dirs(join('..','..','cphvb','include'))
+    multiarray_deps.append(join('..','..','cphvb','include', 'cphvbnumpy.h'))
+    multiarray_deps.append(join('..','..','cphvb','include', 'cphvbnumpy_api.h'))
+    multiarray_deps.append(join('..','..','cphvb','include', 'cphvbnumpy_types.h'))
+    cphvb_install_dir = join('..','..','..','..')#Default location
+    try:
+        cphvb_install_dir = os.path.abspath(os.environ['CPHVB_INSTALL_DIR'])
+    except KeyError:
+        pass
+    cphvb_install_dir = join(cphvb_install_dir, 'include')
+    config.add_include_dirs(cphvb_install_dir)
+
     config.add_extension('multiarray',
                          sources = multiarray_src +
                                 [generate_config_h,

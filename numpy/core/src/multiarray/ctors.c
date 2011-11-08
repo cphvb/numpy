@@ -25,6 +25,9 @@
 
 #include "lowlevel_strided_loops.h"
 
+/* CPHVB */
+#include "cphvbnumpy.h"
+
 /*
  * Reading from a file or a string.
  *
@@ -1032,13 +1035,16 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
     self->data = NULL;
     if (data == NULL) {
         self->flags = DEFAULT;
-        if (flags) {
+        /* CPHVB */
+        if (flags & NPY_FORTRAN) {
             self->flags |= NPY_F_CONTIGUOUS;
             if (nd > 1) {
                 self->flags &= ~NPY_C_CONTIGUOUS;
             }
-            flags = NPY_F_CONTIGUOUS;
+            flags = NPY_FORTRAN | (flags & CPHVB_WANT);
         }
+        /* CPHVB */
+        self->flags |= flags & CPHVB_WANT;
     }
     else {
         self->flags = (flags & ~NPY_UPDATEIFCOPY);
@@ -1073,30 +1079,47 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
         self->flags |= NPY_F_CONTIGUOUS;
     }
 
-    if (data == NULL) {
-        /*
-         * Allocate something even for zero-space arrays
-         * e.g. shape=(0,) -- otherwise buffer exposure
-         * (a.data) doesn't work as it should.
-         */
-
-        if (sd == 0) {
-            sd = descr->elsize;
+    /* CPHVB */
+    PyDistArray_ARRAY(self) = NULL;
+    self->data = data;
+    if (self->data == NULL) {
+        if(PyDistArray_WANT_CPHVB(self))
+        {
+            if(PyDistArray_NewBaseArray(self) < 0)
+                goto fail;
         }
-        data = PyDataMem_NEW(sd);
-        if (data == NULL) {
-            PyErr_NoMemory();
+        else if(PyDistArray_ARRAY(self) != NULL)
+        {
+            PyErr_SetString(PyExc_RuntimeError,
+                            "PyArray_NewFromDescr() must have 'data' "
+                            "set when creating a view.\n");
             goto fail;
         }
-        self->flags |= OWNDATA;
+        else
+        {
+            /*
+             * Allocate something even for zero-space arrays
+             * e.g. shape=(0,) -- otherwise buffer exposure
+             * (a.data) doesn't work as it should.
+             */
+            if (sd == 0) {
+                sd = descr->elsize;
+            }
+            self->data = PyDataMem_NEW(sd);
+            if (self->data == NULL) {
+                PyErr_NoMemory();
+                goto fail;
+            }
 
-        /*
-         * It is bad to have unitialized OBJECT pointers
-         * which could also be sub-fields of a VOID array
-         */
-        if (PyDataType_FLAGCHK(descr, NPY_NEEDS_INIT)) {
-            memset(data, 0, sd);
+            /*
+             * It is bad to have unitialized OBJECT pointers
+             * which could also be sub-fields of a VOID array
+             */
+            if (PyDataType_FLAGCHK(descr, NPY_NEEDS_INIT)) {
+                memset(self->data, 0, sd);
+            }
         }
+        self->flags |= OWNDATA;
     }
     else {
         /*
@@ -1104,8 +1127,21 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
          * Caller must arrange for this to be reset if truly desired
          */
         self->flags &= ~OWNDATA;
+
+        /* CPHVB */
+        if(PyDistArray_WANT_CPHVB(self))
+        {
+            PyErr_SetString(PyExc_RuntimeError,
+                            "PyArray_NewFromDescr() does not support "
+                            "creating a view based on a cphVB "
+                            "array. Only the creations of new arrays "
+                            "are supported\n");
+            goto fail;
+        }
     }
-    self->data = data;
+    //The array does not WANT to be distributed anymore. Now it is
+    //either distributed or not.
+    self->flags &= ~CPHVB_WANT;
 
     /*
      * If the strides were provided to the function, need to
@@ -1779,7 +1815,8 @@ PyArray_FromAny(PyObject *op, PyArray_Descr *newtype, int min_depth,
             ret = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type, newtype,
                                                  ndim, dims,
                                                  NULL, NULL,
-                                                 flags&NPY_F_CONTIGUOUS, NULL);
+                                                 /* CPHVB */
+                                                 flags & (NPY_F_CONTIGUOUS | CPHVB_WANT), NULL);
             if (ret != NULL) {
                 if (ndim > 0) {
                     if (PyArray_AssignFromSequence(ret, op) < 0) {
@@ -1789,7 +1826,7 @@ PyArray_FromAny(PyObject *op, PyArray_Descr *newtype, int min_depth,
                 }
                 else {
                     if (PyArray_DESCR(ret)->f->setitem(op,
-                                                PyArray_DATA(ret), ret) < 0) {
+                        PyArray_DATA(ret), ret) < 0) {
                         Py_DECREF(ret);
                         ret = NULL;
                     }

@@ -50,6 +50,9 @@ maintainer email:  oliphant.travis@ieee.org
 #include "sequence.h"
 #include "buffer.h"
 
+/* CPHVB */
+#include "cphvbnumpy.h"
+
 /*NUMPY_API
   Compute the size of an array (in number of items)
 */
@@ -264,8 +267,18 @@ array_dealloc(PyArrayObject *self) {
              * self already...
              */
         }
-        PyDataMem_FREE(self->data);
+        /* CPHVB */
+        if(PyDistArray_ARRAY(self) == NULL)
+            PyDataMem_FREE(self->data);
     }
+
+    /* CPHVB */
+    if(PyDistArray_ARRAY(self) != NULL)
+        if(PyDistArray_DelViewArray(self) == -1)
+        {
+            PyErr_Print();
+            PyErr_Clear();
+        }
 
     PyDimMem_FREE(self->dimensions);
     Py_DECREF(self->descr);
