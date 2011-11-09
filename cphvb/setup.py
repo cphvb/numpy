@@ -42,7 +42,7 @@ def build(build_path):
                                                join(build_path, 'numpy','core','include','numpy'),
                                                cphvb_install_dir,],
                                  extra_compile_args=[],
-                                 extra_link_args=[],
+                                 extra_link_args=['-lcphvb'],
                                  depends=[join('cphvb','src','helpers.c'),
                                           join('cphvb','src','helpers.h'),
                                           join('cphvb','src','array_database.c'),

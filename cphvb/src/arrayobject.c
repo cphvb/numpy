@@ -20,17 +20,46 @@
 #include <errno.h>
 #include <sys/mman.h>
 #include <signal.h>
+#include "types.h"
 
 /*
  *===================================================================
  * Create a new base array and updates the PyArrayObject.
- * If 'one_node_dist_rank' is positive it specifies the rank of an
- * one-node-distribution.
  * Return -1 and set exception on error, 0 on success.
  */
 static int
 PyDistArray_NewBaseArray(PyArrayObject *ary)
 {
+    int i;
+    cphvb_index s;
+    cphvb_index stride[CPHVB_MAXDIM];
+    cphvb_index shape[CPHVB_MAXDIM];
+    cphvb_error err;
+    cphvb_array *new_ary;
+    cphvb_type dtype = type_py2cph[PyArray_TYPE(ary)];
+
+    printf("PyDistArray_NewBaseArray - type: %s\n",cphvb_type_text(dtype));
+
+    if(dtype == CPHVB_UNKNOWN)
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "cphVB does not support the datatype\n");
+        return -1;
+    }
+
+    //Compute the stride. Row-Major (C-style)
+    s=1;
+    for(i=PyArray_NDIM(ary)-1; i>=0; --i)
+    {
+        stride[i] = s;
+        shape[i] = (cphvb_index) PyArray_DIM(ary,i);
+        s *= shape[i];
+    }
+
+    err = vem_create_array(NULL, dtype, PyArray_NDIM(ary), 0, shape,
+                           stride, 0, (cphvb_constant)0L, &new_ary);
+
+
     /*
     int i;
 
@@ -86,6 +115,7 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
 static int
 PyDistArray_DelViewArray(PyArrayObject *array)
 {
+    printf("PyDistArray_DelViewArray\n");
     /*
     //We have to free the protected data pointer when the NumPy array
     //is not a view.

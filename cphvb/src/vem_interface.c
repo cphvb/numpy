@@ -24,6 +24,7 @@
  */
 void vem_if_init(void)
 {
+    cphvb_error err;
     cphvb_com **coms;
     cphvb_intp children_count;
 
@@ -45,6 +46,13 @@ void vem_if_init(void)
     vem_shutdown = vem_component->shutdown;
     vem_create_array = vem_component->create_array;
 
+    err = vem_init(NULL, NULL, NULL, NULL, vem_component);
+    if(err)
+    {
+        fprintf(stderr, "Error in vem_init()\n");
+        exit(-1);
+    }
+
 } /* vem_if_init */
 
 
@@ -54,7 +62,7 @@ void vem_if_init(void)
  */
 void vem_if_finalize(void)
 {
+    vem_shutdown();
     cphvb_com_free(self_component);
     cphvb_com_free(vem_component);
-
 } /* vem_if_finalize */

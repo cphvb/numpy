@@ -28,8 +28,6 @@ extern "C" {
 /*
  *===================================================================
  * Create a new base array and updates the PyArrayObject.
- * If 'one_node_dist_rank' is positive it specifies the rank of an
- * one-node-distribution.
  * Return -1 and set exception on error, 0 on success.
  */
 static int

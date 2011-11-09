@@ -30,6 +30,7 @@
 
 
 #include "arrayobject.h"
+#include "vem_interface.h"
 /*
 
 #include "dependency_system.h"
@@ -38,13 +39,13 @@
 */
 
 #include "arrayobject.c"
+#include "vem_interface.c"
 /*
 
 #include "dependency_system.c"
 #include "process_grid.c"
 #include "arraydata.c"
 */
-
 
 /*
  * ===================================================================
@@ -54,6 +55,8 @@
 static int
 PyDistArray_Init(void)
 {
+    //Initiate the VEM interface.
+    vem_if_init();
 
     //Init the Array Data Protection.
     //arydat_init();
@@ -73,6 +76,9 @@ PyDistArray_Exit(void)
 
     //Finalize the Array Data Protection.
 //    arydat_finalize();
+
+    //Finalize the VEM interface.
+    vem_if_finalize();
 
 } /* PyDistArray_Exit */
 
