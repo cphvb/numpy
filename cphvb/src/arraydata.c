@@ -38,7 +38,7 @@ static void
 sighandler(int signal_number, siginfo_t *info, void *context)
 {
     //Iterate through all arrays.
-    dndarray *tary = rootarray;
+    PyArrayObject *tary = ary_root;
     while(tary != NULL)
     {
         npy_uintp addr = (npy_uintp)info->si_addr;
@@ -55,9 +55,9 @@ sighandler(int signal_number, siginfo_t *info, void *context)
     }
     else//Segfault triggered by accessing the protected data pointer.
     {
-        printf("Warning - un-distributing array(%ld) because of "
-               "direct data access(%p).\n", tary->uid, info->si_addr);
-        PyDistArray_UnDist(tary);
+        printf("Warning - un-distributing array(%p) because of "
+               "direct data access(%p).\n", tary, info->si_addr);
+//        PyDistArray_UnDist(tary);
     }
 }
 
@@ -96,9 +96,7 @@ int arydat_finalize(void)
  */
 int arydat_malloc(PyArrayObject *ary)
 {
-    dndview *view = PyDistArray_ARRAY(ary);
-    npy_int size = view->base->nelem * view->base->elsize;
-
+    cphvb_intp size = PyArray_NBYTES(ary);
     //Allocate page-size aligned memory.
     //The MAP_PRIVATE and MAP_ANONYMOUS flags is not 100% portable. See:
     //<http://stackoverflow.com/questions/4779188/how-to-use-mmap-to-allocate-a-memory-in-heap>
@@ -125,8 +123,8 @@ int arydat_malloc(PyArrayObject *ary)
     //Update the ary data pointer.
     PyArray_BYTES(ary) = addr;
     //We also need to save the start and end address.
-    view->base->mprotected_start = (npy_uintp)addr;
-    view->base->mprotected_end = view->base->mprotected_start + size;
+    ary->mprotected_start = (npy_uintp)addr;
+    ary->mprotected_end = ((npy_uintp)addr) + size;
 
     return 0;
 }/* arydat_malloc */
@@ -138,10 +136,8 @@ int arydat_malloc(PyArrayObject *ary)
 int arydat_free(PyArrayObject *ary)
 {
     void *addr = PyArray_DATA(ary);
-    dndview *view = PyDistArray_ARRAY(ary);
-    npy_int size = view->base->nelem * view->base->elsize;
 
-    if(munmap(addr, size) == -1)
+    if(munmap(addr, PyArray_NBYTES(ary)) == -1)
     {
         int errsv = errno;//munmmap() sets the errno.
         PyErr_Format(PyExc_RuntimeError, "The Array Data Protection "

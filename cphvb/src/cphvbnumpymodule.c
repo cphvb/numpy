@@ -26,26 +26,13 @@
 
 //We include all .h and .c files.
 //NumPy distutil complains when having multiple module files.
-
-
-
 #include "arrayobject.h"
 #include "vem_interface.h"
-/*
-
-#include "dependency_system.h"
-#include "process_grid.h"
 #include "arraydata.h"
-*/
-
 #include "arrayobject.c"
 #include "vem_interface.c"
-/*
-
-#include "dependency_system.c"
-#include "process_grid.c"
 #include "arraydata.c"
-*/
+
 
 /*
  * ===================================================================
@@ -59,7 +46,7 @@ PyDistArray_Init(void)
     vem_if_init();
 
     //Init the Array Data Protection.
-    //arydat_init();
+    arydat_init();
 
     return 0;
 } /* PyDistArray_Init */
@@ -75,7 +62,7 @@ PyDistArray_Exit(void)
 //    mem_pool_finalize();
 
     //Finalize the Array Data Protection.
-//    arydat_finalize();
+    arydat_finalize();
 
     //Finalize the VEM interface.
     vem_if_finalize();

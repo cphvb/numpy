@@ -36,11 +36,20 @@ extern "C" {
 
     memory protected end address (excl.).
     npy_intp mprotected_end;
+
+    Next array in the array collection.
+    PyObjectArray *next;
+
+    Previous array in the array collection.
+    PyObjectArray *prev;
 */
-#define CPHVBNUMPY_ARRAY               \
-    cphvb_array*  cphvb_ary;           \
-    npy_intp      mprotected_start;    \
-    npy_intp      mprotected_end;      \
+#define CPHVBNUMPY_ARRAY                \
+    cphvb_array*   cphvb_ary;           \
+    npy_intp       mprotected_start;    \
+    npy_intp       mprotected_end;      \
+    PyArrayObject *next;                \
+    PyArrayObject *prev;                \
+
 
 
 #ifdef __cplusplus

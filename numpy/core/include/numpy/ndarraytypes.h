@@ -622,8 +622,8 @@ typedef struct _arr_descr {
  * defined below (PyArray_DATA and friends) access fields here, instead
  * of the members themselves.
  */
-
-typedef struct PyArrayObject {
+typedef struct PyArrayObject PyArrayObject;/* CPHVB */
+struct PyArrayObject {
         PyObject_HEAD
         char *data;             /* pointer to raw data buffer */
         int nd;                 /* number of dimensions, also called ndim */
@@ -651,7 +651,7 @@ typedef struct PyArrayObject {
         int flags;              /* Flags describing array -- see below */
         PyObject *weakreflist;  /* For weakreferences */
         CPHVBNUMPY_ARRAY        /* CPHVB cphVB Array Extension */
-} PyArrayObject;
+};
 
 #define NPY_AO PyArrayObject
 

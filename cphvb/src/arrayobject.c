@@ -22,6 +22,8 @@
 #include <signal.h>
 #include "types.h"
 
+static PyArrayObject *ary_root = NULL;//The root of the array collection.
+
 /*
  *===================================================================
  * Create a new base array and updates the PyArrayObject.
@@ -35,7 +37,6 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
     cphvb_index stride[CPHVB_MAXDIM];
     cphvb_index shape[CPHVB_MAXDIM];
     cphvb_error err;
-    cphvb_array *new_ary;
     cphvb_type dtype = type_py2cph[PyArray_TYPE(ary)];
 
     printf("PyDistArray_NewBaseArray - type: %s\n",cphvb_type_text(dtype));
@@ -45,6 +46,16 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
         PyErr_SetString(PyExc_RuntimeError,
                         "cphVB does not support the datatype\n");
         return -1;
+    }
+
+    //Append the array to the array collection.
+    ary->prev = NULL;
+    ary->next = ary_root;
+    ary_root = ary;
+    if(ary->next != NULL)
+    {
+        assert(ary->next->prev == NULL);
+        ary->next->prev = ary_root;
     }
 
     //Compute the stride. Row-Major (C-style)
@@ -57,51 +68,10 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
     }
 
     err = vem_create_array(NULL, dtype, PyArray_NDIM(ary), 0, shape,
-                           stride, 0, (cphvb_constant)0L, &new_ary);
+                           stride, 0, (cphvb_constant)0L,
+                           &PyDistArray_ARRAY(ary));
 
 
-    /*
-    int i;
-
-    //Create dndarray.
-    dndarray newarray;
-    newarray.dtype = PyArray_TYPE(ary);
-    newarray.elsize = PyArray_ITEMSIZE(ary);
-    newarray.ndims = PyArray_NDIM(ary);
-    newarray.nelem = PyArray_SIZE(ary);
-    newarray.isdist = 1;
-    newarray.refcount = 1;
-    newarray.onerank = one_node_dist_rank;
-    for(i=0; i<PyArray_NDIM(ary); i++)
-        newarray.dims[i] = PyArray_DIM(ary, i);
-
-    //Create dndview. NB: the base will have to be set when 'newarray'
-    //has found its final resting place. (Done by put_dndarray).
-    dndview newview;
-    newview.uid = ++uid_count;
-    newview.nslice = PyArray_NDIM(ary);
-    newview.ndims = PyArray_NDIM(ary);
-    newview.alterations = 0;
-    for(i=0; i<PyArray_NDIM(ary); i++)
-    {
-        //Default the view will span over the whole array.
-        newview.slice[i].start = 0;
-        newview.slice[i].step = 1;
-        newview.slice[i].nsteps = PyArray_DIM(ary, i);
-    }
-
-    dndview *ret = handle_NewBaseArray(&newarray, &newview);
-
-    if(ret == NULL)
-        return -1;
-
-    PyDistArray_ARRAY(ary) = ret;
-    ret->base->pyary = ary;
-
-    //Protect the original NumPy data pointer.
-    //This is only done by the Master MPI Process.
-    return arydat_malloc(ary);
-    */
     return 0;
 } /* PyDistArray_NewBaseArray */
 
