@@ -29,10 +29,11 @@
 #include "arrayobject.h"
 #include "vem_interface.h"
 #include "arraydata.h"
+#include "batch.h"
 #include "arrayobject.c"
 #include "vem_interface.c"
 #include "arraydata.c"
-
+#include "batch.c"
 
 /*
  * ===================================================================
@@ -92,11 +93,36 @@ evalflush(PyObject *m, PyObject *args, PyObject *kws)
     Py_RETURN_NONE;
 }*/ /* evalflush */
 
+/*
+ * ===================================================================
+ * Python wrapper for PyDistArray_HandleArray.
+ */
+static PyObject *
+_handle_array(PyObject *m, PyObject *args)
+{
+    PyObject *obj = NULL;
+    if (!PyArg_ParseTuple(args, "O", &obj)) {
+        return NULL;
+    }
+    if(!PyArray_Check(obj))
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Must be a NumPy array.");
+        return NULL;
+    }
+
+    if(PyDistArray_HandleArray((PyArrayObject *) obj) != 0)
+        return NULL;
+
+    Py_RETURN_NONE;
+} /* _handle_array */
+
 
 static PyMethodDef cphVBMethods[] = {/*
     {"evalflush", evalflush, METH_VARARGS|METH_KEYWORDS,
      "Executes all appending operations. If the optional option "\
      "barrier is true, a MPI barrier is included in SPMD mode"},*/
+    {"handle_array", _handle_array, METH_VARARGS,
+     "Indicate that cphVB should handle the array."},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
@@ -116,11 +142,9 @@ initcphvbnumpy(void)
     cphVB_API[PyDistArray_Exit_NUM] = (void *)PyDistArray_Exit;
     cphVB_API[PyDistArray_NewBaseArray_NUM] = (void *)PyDistArray_NewBaseArray;
     cphVB_API[PyDistArray_DelViewArray_NUM] = (void *)PyDistArray_DelViewArray;
+    cphVB_API[PyDistArray_HandleArray_NUM] = (void *)PyDistArray_HandleArray;
+
 /*
-    cphVB_API[PyDistArray_GetItem_NUM] = (void *)PyDistArray_GetItem;
-    cphVB_API[PyDistArray_PutItem_NUM] = (void *)PyDistArray_PutItem;
-    cphVB_API[PyDistArray_ProcGridSet_NUM] = (void *)PyDistArray_ProcGridSet;
-    cphVB_API[PyDistArray_IsDist_NUM] = (void *)PyDistArray_IsDist;
     cphVB_API[PyDistArray_NewViewArray_NUM] = (void *)PyDistArray_NewViewArray;
 */
     /* Create a CObject containing the API pointer array's address */

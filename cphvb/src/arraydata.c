@@ -37,27 +37,72 @@
 static void
 sighandler(int signal_number, siginfo_t *info, void *context)
 {
-    //Iterate through all arrays.
-    PyArrayObject *tary = ary_root;
-    while(tary != NULL)
+    cphvb_error err;
+    //Iterate through all base arrays.
+    PyArrayObject *ary = ary_root;
+    while(ary != NULL)
     {
         npy_uintp addr = (npy_uintp)info->si_addr;
-        if(tary->mprotected_start <= addr && addr < tary->mprotected_end)
+        if(ary->mprotected_start <= addr && addr < ary->mprotected_end)
            break;
 
         //Go to the next ary.
-        tary = tary->next;
+        ary = ary->next;
     }
 
-    if(tary == NULL)//Normal segfault.
+    if(ary == NULL)//Normal segfault.
     {
         signal(signal_number, SIG_DFL);
     }
     else//Segfault triggered by accessing the protected data pointer.
     {
+        cphvb_instruction inst;
+        cphvb_intp size = PyArray_NBYTES(ary);
+        cphvb_array *a = PyDistArray_ARRAY(ary);
         printf("Warning - un-distributing array(%p) because of "
-               "direct data access(%p).\n", tary, info->si_addr);
-//        PyDistArray_UnDist(tary);
+               "direct data access(%p). size: %ld\n", a, info->si_addr, size);
+
+        //Tell the VEM to syncronize the data.
+        inst.opcode = CPHVB_SYNC;
+        inst.operand[0] = a;
+        batch_schedule(&inst);
+        batch_flush();
+
+        //Make sure that the memory is allocated.
+        err = cphvb_malloc_array_data(a);
+        if(err != CPHVB_SUCCESS)
+        {
+            fprintf(stderr, "Error when allocating array (%p): %s\n",
+                            a, cphvb_error_text(err));
+            exit(err);
+        }
+
+/*
+        //mremap does not work since a->data is not guaranteed to be
+        //page aligned.
+        if(mremap(a->data, size, size, MREMAP_FIXED|MREMAP_MAYMOVE,
+                  ary->data) == MAP_FAILED)
+        {
+            int errsv = errno;//mremap() sets the errno.
+            fprintf(stderr,"Error - could not mremap a data region."
+                           " Returned error code by mremap: %s.\n",
+                           strerror(errsv));
+            exit(errno);
+        }
+*/
+        //Unproctect the NumPy array data.
+        //NB: this is not thread-safe and result in duplicated data.
+        if(mprotect(ary->data, size, PROT_READ|PROT_WRITE) == -1)
+        {
+            int errsv = errno;//mprotect() sets the errno.
+            fprintf(stderr,"Error - could not un-protect a data region."
+                           " Returned error code by mprotect: %s.\n",
+                           strerror(errsv));
+            exit(errno);
+        }
+        //Move data from CPHVB to NumPy space.
+        memcpy(ary->data, a->data, size);
+
     }
 }
 

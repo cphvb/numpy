@@ -33,44 +33,26 @@ extern "C" {
 #define PyDistArray_Exit_RETURN void
 #define PyDistArray_Exit_PROTO (void)
 
-#define PyDistArray_NewBaseArray_NUM 3
+#define PyDistArray_NewBaseArray_NUM 2
 #define PyDistArray_NewBaseArray_RETURN int
 #define PyDistArray_NewBaseArray_PROTO (PyArrayObject *ary)
 
-#define PyDistArray_DelViewArray_NUM 4
+#define PyDistArray_DelViewArray_NUM 3
 #define PyDistArray_DelViewArray_RETURN int
 #define PyDistArray_DelViewArray_PROTO (PyArrayObject *array)
 
+#define PyDistArray_HandleArray_NUM 4
+#define PyDistArray_HandleArray_RETURN int
+#define PyDistArray_HandleArray_PROTO (PyArrayObject *array)
+
 /*
-
-#define PyDistArray_GetItem_NUM 5
-#define PyDistArray_GetItem_RETURN int
-#define PyDistArray_GetItem_PROTO (PyArrayObject *ary, char *retdata, npy_intp coord[NPY_MAXDIMS])
-
-#define PyDistArray_PutItem_NUM 6
-#define PyDistArray_PutItem_RETURN int
-#define PyDistArray_PutItem_PROTO (PyArrayObject *ary, npy_intp coord[NPY_MAXDIMS], PyObject *item)
-
-#define PyDistArray_ProcGridSet_NUM 7
-#define PyDistArray_ProcGridSet_RETURN PyObject *
-#define PyDistArray_ProcGridSet_PROTO (PyArrayObject *self, PyObject *args)
-
-#define PyDistArray_UnDist_NUM 8
-#define PyDistArray_UnDist_RETURN int
-#define PyDistArray_UnDist_PROTO (dndarray *ary)
-
-#define PyDistArray_IsDist_NUM 9
-#define PyDistArray_IsDist_RETURN int
-#define PyDistArray_IsDist_PROTO (PyArrayObject *ary)
-
 #define PyDistArray_NewViewArray_NUM 10
 #define PyDistArray_NewViewArray_RETURN int
 #define PyDistArray_NewViewArray_PROTO (PyArrayObject *orig_ary, PyArrayObject *new_ary, int nslice, dndslice slice[NPY_MAXDIMS])
-
 */
 
 /* Total number of C API pointers */
-#define cphVB_API_pointers 11
+#define cphVB_API_pointers 5
 
 
 #ifdef CPHVBNUMPY_MODULE
@@ -80,13 +62,9 @@ static PyDistArray_Init_RETURN PyDistArray_Init PyDistArray_Init_PROTO;
 static PyDistArray_Exit_RETURN PyDistArray_Exit PyDistArray_Exit_PROTO;
 static PyDistArray_NewBaseArray_RETURN PyDistArray_NewBaseArray PyDistArray_NewBaseArray_PROTO;
 static PyDistArray_DelViewArray_RETURN PyDistArray_DelViewArray PyDistArray_DelViewArray_PROTO;
+static PyDistArray_HandleArray_RETURN PyDistArray_HandleArray PyDistArray_HandleArray_PROTO;
 
 /*
-static PyDistArray_GetItem_RETURN PyDistArray_GetItem PyDistArray_GetItem_PROTO;
-static PyDistArray_PutItem_RETURN PyDistArray_PutItem PyDistArray_PutItem_PROTO;
-static PyDistArray_ProcGridSet_RETURN PyDistArray_ProcGridSet PyDistArray_ProcGridSet_PROTO;
-static PyDistArray_UnDist_RETURN PyDistArray_UnDist PyDistArray_UnDist_PROTO;
-static PyDistArray_IsDist_RETURN PyDistArray_IsDist PyDistArray_IsDist_PROTO;
 static PyDistArray_NewViewArray_RETURN PyDistArray_NewViewArray PyDistArray_NewViewArray_PROTO;
 */
 
@@ -108,26 +86,12 @@ static void **cphVB_API;
 #define PyDistArray_DelViewArray \
  (*(PyDistArray_DelViewArray_RETURN (*)PyDistArray_DelViewArray_PROTO) cphVB_API[PyDistArray_DelViewArray_NUM])
 
+#define PyDistArray_HandleArray \
+ (*(PyDistArray_HandleArray_RETURN (*)PyDistArray_HandleArray_PROTO) cphVB_API[PyDistArray_HandleArray_NUM])
+
 /*
-
-#define PyDistArray_GetItem \
- (*(PyDistArray_GetItem_RETURN (*)PyDistArray_GetItem_PROTO) cphVB_API[PyDistArray_GetItem_NUM])
-
-#define PyDistArray_PutItem \
- (*(PyDistArray_PutItem_RETURN (*)PyDistArray_PutItem_PROTO) cphVB_API[PyDistArray_PutItem_NUM])
-
-#define PyDistArray_ProcGridSet \
- (*(PyDistArray_ProcGridSet_RETURN (*)PyDistArray_ProcGridSet_PROTO) cphVB_API[PyDistArray_ProcGridSet_NUM])
-
-#define PyDistArray_UnDist \
- (*(PyDistArray_UnDist_RETURN (*)PyDistArray_UnDist_PROTO) cphVB_API[PyDistArray_UnDist_NUM])
-
- #define PyDistArray_IsDist \
- (*(PyDistArray_IsDist_RETURN (*)PyDistArray_IsDist_PROTO) cphVB_API[PyDistArray_IsDist_NUM])
-
 #define PyDistArray_NewViewArray \
  (*(PyDistArray_NewViewArray_RETURN (*)PyDistArray_NewViewArray_PROTO) cphVB_API[PyDistArray_NewViewArray_NUM])
-
 */
 
 /* Return -1 and set exception on error, 0 on success. */

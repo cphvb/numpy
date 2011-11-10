@@ -22,8 +22,6 @@
 #include <signal.h>
 #include "types.h"
 
-static PyArrayObject *ary_root = NULL;//The root of the array collection.
-
 /*
  *===================================================================
  * Create a new base array and updates the PyArrayObject.
@@ -48,7 +46,7 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
         return -1;
     }
 
-    //Append the array to the array collection.
+    //Append the array to the base array collection.
     ary->prev = NULL;
     ary->next = ary_root;
     ary_root = ary;
@@ -70,9 +68,10 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
     err = vem_create_array(NULL, dtype, PyArray_NDIM(ary), 0, shape,
                            stride, 0, (cphvb_constant)0L,
                            &PyDistArray_ARRAY(ary));
+    if(err != CPHVB_SUCCESS)
+        return err;
 
-
-    return 0;
+    return arydat_malloc(ary);
 } /* PyDistArray_NewBaseArray */
 
 /*
@@ -95,3 +94,19 @@ PyDistArray_DelViewArray(PyArrayObject *array)
     return 0;
 
 } /* PyDistArray_DelViewArray */
+
+
+/*
+ *===================================================================
+ * Indicate that cphVB should handle the array.
+ * Return -1 and set exception on error, 0 on success.
+ */
+static int
+PyDistArray_HandleArray(PyArrayObject *array)
+{
+    printf("PyDistArray_HandleArray\n");
+
+    return 0;
+
+} /* PyDistArray_HandleArray */
+

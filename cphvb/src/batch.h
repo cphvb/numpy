@@ -17,44 +17,27 @@
  * along with DistNumPy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ARRAYOBJECT_H
-#define ARRAYOBJECT_H
+#ifndef BATCH_H
+#define BATCH_H
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "cphvbnumpy_types.h"
-
-PyArrayObject *ary_root = NULL;//The root of the base array collection.
+/*
+ *===================================================================
+ * Flush scheduled instruction to the VEM.
+ */
+void batch_flush(void);
 
 /*
  *===================================================================
- * Create a new base array and updates the PyArrayObject.
- * Return -1 and set exception on error, 0 on success.
+ * Schedule one instruction.
  */
-static int
-PyDistArray_NewBaseArray(PyArrayObject *ary);
+void batch_schedule(cphvb_instruction *inst);
 
-/*
- *===================================================================
- * Delete array view.
- * When it is the last view of the base array, the base array is de-
- * allocated.
- * Return -1 and set exception on error, 0 on success.
- */
-static int
-PyDistArray_DelViewArray(PyArrayObject *array);
-
-/*
- *===================================================================
- * Indicate that cphVB should handle the array.
- * Return -1 and set exception on error, 0 on success.
- */
-static int
-PyDistArray_HandleArray(PyArrayObject *array);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* !defined(ARRAYOBJECT_H) */
+#endif /* !defined(BATCH_H) */
