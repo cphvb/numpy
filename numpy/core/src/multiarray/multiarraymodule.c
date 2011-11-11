@@ -1657,11 +1657,12 @@ _array_fromobject(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kws)
     flags |= NPY_FORCECAST;
     Py_XINCREF(type);
 
+    ret = PyArray_CheckFromAny(op, type, 0, 0, flags, NULL);
+
     /* CPHVB */
     if(dist)
-        flags |= CPHVB_WANT;
-
-    ret = PyArray_CheckFromAny(op, type, 0, 0, flags, NULL);
+        if(PyDistArray_HandleArray((PyArrayObject *)ret, 1) == -1)
+            goto finish;
 
  finish:
     Py_XDECREF(type);
@@ -1723,11 +1724,14 @@ array_empty(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kwds)
     if(fortran)
         flags |= NPY_FORTRAN;
 
-    if(dist)
-        flags |= CPHVB_WANT;
-
     ret = PyArray_Empty(shape.len, shape.ptr, typecode, flags);
     PyDimMem_FREE(shape.ptr);
+
+    /* CPHVB */
+    if(dist)
+        if(PyDistArray_HandleArray((PyArrayObject *)ret, 0) == -1)
+            goto fail;
+
     return ret;
 
  fail:

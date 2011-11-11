@@ -1041,10 +1041,8 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
             if (nd > 1) {
                 self->flags &= ~NPY_C_CONTIGUOUS;
             }
-            flags = NPY_FORTRAN | (flags & CPHVB_WANT);
+            flags = NPY_FORTRAN;
         }
-        /* CPHVB */
-        self->flags |= flags & CPHVB_WANT;
     }
     else {
         self->flags = (flags & ~NPY_UPDATEIFCOPY);
@@ -1083,12 +1081,7 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
     PyDistArray_ARRAY(self) = NULL;
     self->data = data;
     if (self->data == NULL) {
-        if(PyDistArray_WANT_CPHVB(self))
-        {
-            if(PyDistArray_NewBaseArray(self) < 0)
-                goto fail;
-        }
-        else if(PyDistArray_ARRAY(self) != NULL)
+        if(PyDistArray_ARRAY(self) != NULL)/* CPHVB */
         {
             PyErr_SetString(PyExc_RuntimeError,
                             "PyArray_NewFromDescr() must have 'data' "
@@ -1124,21 +1117,7 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
          * Caller must arrange for this to be reset if truly desired
          */
         self->flags &= ~OWNDATA;
-
-        /* CPHVB */
-        if(PyDistArray_WANT_CPHVB(self))
-        {
-            PyErr_SetString(PyExc_RuntimeError,
-                            "PyArray_NewFromDescr() does not support "
-                            "creating a view based on a cphVB "
-                            "array. Only the creations of new arrays "
-                            "are supported\n");
-            goto fail;
-        }
     }
-    //The array does not WANT to be distributed anymore. Now it is
-    //either distributed or not.
-    self->flags &= ~CPHVB_WANT;
 
     /*
      * If the strides were provided to the function, need to
@@ -1813,7 +1792,7 @@ PyArray_FromAny(PyObject *op, PyArray_Descr *newtype, int min_depth,
                                                  ndim, dims,
                                                  NULL, NULL,
                                                  /* CPHVB */
-                                                 flags & (NPY_F_CONTIGUOUS | CPHVB_WANT), NULL);
+                                                 flags & NPY_F_CONTIGUOUS, NULL);
             if (ret != NULL) {
                 if (ndim > 0) {
                     if (PyArray_AssignFromSequence(ret, op) < 0) {

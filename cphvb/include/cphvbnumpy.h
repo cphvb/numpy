@@ -29,9 +29,6 @@ extern "C" {
 #include "numpy/arrayobject.h"
 #endif
 
-//Flag indicating that the array want to be handled by cphVB
-#define CPHVB_WANT 0x2000
-
 //Easy attribute retrievals.
 #define PyDistArray_WANT_CPHVB(m) PyArray_CHKFLAGS(m,CPHVB_WANT)
 #define PyDistArray_ARRAY(obj) (((PyArrayObject *)(obj))->cphvb_ary)

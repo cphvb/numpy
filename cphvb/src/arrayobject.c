@@ -81,11 +81,12 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
 static int
 PyDistArray_DelViewArray(PyArrayObject *array)
 {
-    printf("PyDistArray_DelViewArray\n");
-
     //Free the data pointer in the NumPy address space.
     if(PyDistArray_MfreeArray(array) == -1)
         return 0;
+
+    if(PyDistArray_ARRAY(array) != NULL)
+        printf("PyDistArray_DelViewArray - deleting cphVB handled array\n");
 
     /*
     //We have to free the protected data pointer when the NumPy array
@@ -115,11 +116,10 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
     cphvb_intp size = PyArray_NBYTES(array);
     cphvb_array *a = PyDistArray_ARRAY(array);
 
-    assert(a->base == NULL);//Base Array.
-
     if(a == NULL)//Array has never been handled by cphVB before.
     {
         PyDistArray_NewBaseArray(array);
+        a = PyDistArray_ARRAY(array);
     }
     else if(transfer_data)
     {
@@ -129,6 +129,8 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
         batch_schedule(&inst);
         batch_flush();
     }
+
+    assert(a->base == NULL);//Base Array for now.
 
     if(transfer_data)
     {
