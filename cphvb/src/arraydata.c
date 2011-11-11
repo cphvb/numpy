@@ -52,7 +52,7 @@ PyDistArray_MallocArray(PyArrayObject *ary)
                      "Returned error code by mmap: %s.", strerror(errsv));
         return -1;
     }
-
+/*
     //Protect the memory.
     if(mprotect(addr, size, PROT_NONE) == -1)
     {
@@ -62,7 +62,7 @@ PyDistArray_MallocArray(PyArrayObject *ary)
                      "Returned error code by mmap: %s.", strerror(errsv));
         return -1;
     }
-
+*/
     //Update the ary data pointer.
     PyArray_BYTES(ary) = addr;
     //We also need to save the start and end address.
@@ -71,6 +71,28 @@ PyDistArray_MallocArray(PyArrayObject *ary)
 
     return 0;
 }/* PyDistArray_MallocArray */
+
+/*
+ *===================================================================
+ * Free cphVB-compatible memory.
+ * @array The array that should own the memory.
+ * @return -1 and set exception on error, 0 on success.
+ */
+static int
+PyDistArray_MfreeArray(PyArrayObject *ary)
+{
+    void *addr = PyArray_DATA(ary);
+
+    if(munmap(addr, PyArray_NBYTES(ary)) == -1)
+    {
+        int errsv = errno;//munmmap() sets the errno.
+        PyErr_Format(PyExc_RuntimeError, "The Array Data Protection "
+                     "could not mummap a data region. "
+                     "Returned error code by mmap: %s.", strerror(errsv));
+        return -1;
+    }
+    return 0;
+} /* PyDistArray_MfreeArray */
 
 /*
  *===================================================================
@@ -177,23 +199,3 @@ int arydat_finalize(void)
     return 0;
 } /* arydat_finalize */
 
-
-
-/*
- *===================================================================
- * Free protected memory.
- */
-int arydat_free(PyArrayObject *ary)
-{
-    void *addr = PyArray_DATA(ary);
-
-    if(munmap(addr, PyArray_NBYTES(ary)) == -1)
-    {
-        int errsv = errno;//munmmap() sets the errno.
-        PyErr_Format(PyExc_RuntimeError, "The Array Data Protection "
-                     "could not mummap a data region. "
-                     "Returned error code by mmap: %s.", strerror(errsv));
-        return -1;
-    }
-    return 0;
-}

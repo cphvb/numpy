@@ -82,6 +82,11 @@ static int
 PyDistArray_DelViewArray(PyArrayObject *array)
 {
     printf("PyDistArray_DelViewArray\n");
+
+    //Free the data pointer in the NumPy address space.
+    if(PyDistArray_MfreeArray(array) == -1)
+        return 0;
+
     /*
     //We have to free the protected data pointer when the NumPy array
     //is not a view.

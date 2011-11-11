@@ -268,17 +268,12 @@ array_dealloc(PyArrayObject *self) {
              */
         }
         /* CPHVB */
-        if(PyDistArray_ARRAY(self) == NULL)
-            PyDataMem_FREE(self->data);
-    }
-
-    /* CPHVB */
-    if(PyDistArray_ARRAY(self) != NULL)
         if(PyDistArray_DelViewArray(self) == -1)
         {
             PyErr_Print();
             PyErr_Clear();
         }
+    }
 
     PyDimMem_FREE(self->dimensions);
     Py_DECREF(self->descr);
