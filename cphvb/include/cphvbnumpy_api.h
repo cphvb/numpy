@@ -43,7 +43,7 @@ extern "C" {
 
 #define PyDistArray_HandleArray_NUM 4
 #define PyDistArray_HandleArray_RETURN int
-#define PyDistArray_HandleArray_PROTO (PyArrayObject *array)
+#define PyDistArray_HandleArray_PROTO (PyArrayObject *array, int transfer_data)
 
 /*
 #define PyDistArray_NewViewArray_NUM 10

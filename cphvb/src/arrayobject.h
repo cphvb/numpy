@@ -48,10 +48,13 @@ PyDistArray_DelViewArray(PyArrayObject *array);
 /*
  *===================================================================
  * Indicate that cphVB should handle the array.
+ * @array The array cphVB should handle.
+ * @transfer_data Whether data should be transferred from NumPy to
+ *                cphVB address space.
  * Return -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_HandleArray(PyArrayObject *array);
+PyDistArray_HandleArray(PyArrayObject *array, int transfer_data);
 
 #ifdef __cplusplus
 }

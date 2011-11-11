@@ -110,7 +110,7 @@ _handle_array(PyObject *m, PyObject *args)
         return NULL;
     }
 
-    if(PyDistArray_HandleArray((PyArrayObject *) obj) != 0)
+    if(PyDistArray_HandleArray((PyArrayObject *) obj, 1) != 0)
         return NULL;
 
     Py_RETURN_NONE;

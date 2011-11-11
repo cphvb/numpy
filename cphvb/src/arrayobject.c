@@ -99,12 +99,59 @@ PyDistArray_DelViewArray(PyArrayObject *array)
 /*
  *===================================================================
  * Indicate that cphVB should handle the array.
+ * @array The array cphVB should handle.
+ * @transfer_data Whether data should be transferred from NumPy to
+ *                cphVB address space.
  * Return -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_HandleArray(PyArrayObject *array)
+PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
 {
     printf("PyDistArray_HandleArray\n");
+    cphvb_error err;
+    cphvb_instruction inst;
+    cphvb_intp size = PyArray_NBYTES(array);
+    cphvb_array *a = PyDistArray_ARRAY(array);
+
+    assert(a->base == NULL);//Base Array.
+
+    if(a == NULL)//Array has never been handled by cphVB before.
+    {
+        PyDistArray_NewBaseArray(array);
+    }
+    else if(transfer_data)
+    {
+        //Tell the VEM to syncronize the data.
+        inst.opcode = CPHVB_SYNC;
+        inst.operand[0] = a;
+        batch_schedule(&inst);
+        batch_flush();
+    }
+
+    if(transfer_data)
+    {
+        //Make sure that the memory is allocated.
+        err = cphvb_malloc_array_data(a);
+        if(err != CPHVB_SUCCESS)
+        {
+            fprintf(stderr, "Error when allocating array (%p): %s\n",
+                            a, cphvb_error_text(err));
+            exit(err);
+        }
+
+        //We need to move data from NumPy to cphVB address space.
+        memcpy(a->data, array->data, size);
+    }
+
+    //Proctect the NumPy array data.
+    if(mprotect(array->data, size, PROT_NONE) == -1)
+    {
+        int errsv = errno;//mprotect() sets the errno.
+        fprintf(stderr,"Error - could not protect a data region."
+                       " Returned error code by mprotect: %s.\n",
+                       strerror(errsv));
+        exit(errno);
+    }
 
     return 0;
 
