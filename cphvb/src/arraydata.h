@@ -25,6 +25,15 @@ extern "C" {
 
 /*
  *===================================================================
+ * Allocate cphVB-compatible memory.
+ * @array The array that should own the memory.
+ * @return -1 and set exception on error, 0 on success.
+ */
+static int
+PyDistArray_MallocArray(PyArrayObject *ary);
+
+/*
+ *===================================================================
  * Initialization of the Array Data Protection.
  */
 int arydat_init(void);
@@ -34,13 +43,6 @@ int arydat_init(void);
  * Finalization of the Array Data Protection.
  */
 int arydat_finalize(void);
-
-/*
- *===================================================================
- * Allocate data memory for the 'ary'.
- * Return -1 and set exception on error, 0 on success.
- */
-int arydat_malloc(PyArrayObject *ary);
 
 /*
  *===================================================================

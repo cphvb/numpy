@@ -68,10 +68,7 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
     err = vem_create_array(NULL, dtype, PyArray_NDIM(ary), 0, shape,
                            stride, 0, (cphvb_constant)0L,
                            &PyDistArray_ARRAY(ary));
-    if(err != CPHVB_SUCCESS)
-        return err;
-
-    return arydat_malloc(ary);
+    return err;
 } /* PyDistArray_NewBaseArray */
 
 /*

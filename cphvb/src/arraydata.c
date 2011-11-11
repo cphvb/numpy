@@ -31,6 +31,49 @@
 
 /*
  *===================================================================
+ * Allocate cphVB-compatible memory.
+ * @array The array that should own the memory.
+ * @return -1 and set exception on error, 0 on success.
+ */
+static int
+PyDistArray_MallocArray(PyArrayObject *ary)
+{
+    cphvb_intp size = PyArray_NBYTES(ary);
+
+    //Allocate page-size aligned memory.
+    //The MAP_PRIVATE and MAP_ANONYMOUS flags is not 100% portable. See:
+    //<http://stackoverflow.com/questions/4779188/how-to-use-mmap-to-allocate-a-memory-in-heap>
+    void *addr = mmap(0, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+    if(addr == MAP_FAILED)
+    {
+        int errsv = errno;//mmap() sets the errno.
+        PyErr_Format(PyExc_RuntimeError, "The Array Data Protection "
+                     "could not mmap a data region. "
+                     "Returned error code by mmap: %s.", strerror(errsv));
+        return -1;
+    }
+
+    //Protect the memory.
+    if(mprotect(addr, size, PROT_NONE) == -1)
+    {
+        int errsv = errno;//mprotect() sets the errno.
+        PyErr_Format(PyExc_RuntimeError, "The Array Data Protection "
+                     "could not mmap a data region. "
+                     "Returned error code by mmap: %s.", strerror(errsv));
+        return -1;
+    }
+
+    //Update the ary data pointer.
+    PyArray_BYTES(ary) = addr;
+    //We also need to save the start and end address.
+    ary->mprotected_start = (npy_uintp)addr;
+    ary->mprotected_end = ((npy_uintp)addr) + size;
+
+    return 0;
+}/* PyDistArray_MallocArray */
+
+/*
+ *===================================================================
  * Signal handler for SIGSEGV.
  * Private.
  */
@@ -134,45 +177,7 @@ int arydat_finalize(void)
     return 0;
 } /* arydat_finalize */
 
-/*
- *===================================================================
- * Allocate protected data memory for the 'ary'.
- * Return -1 and set exception on error, 0 on success.
- */
-int arydat_malloc(PyArrayObject *ary)
-{
-    cphvb_intp size = PyArray_NBYTES(ary);
-    //Allocate page-size aligned memory.
-    //The MAP_PRIVATE and MAP_ANONYMOUS flags is not 100% portable. See:
-    //<http://stackoverflow.com/questions/4779188/how-to-use-mmap-to-allocate-a-memory-in-heap>
-    void *addr = mmap(0, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-    if(addr == MAP_FAILED)
-    {
-        int errsv = errno;//mmap() sets the errno.
-        PyErr_Format(PyExc_RuntimeError, "The Array Data Protection "
-                     "could not mmap a data region. "
-                     "Returned error code by mmap: %s.", strerror(errsv));
-        return -1;
-    }
 
-    //Protect the memory.
-    if(mprotect(addr, size, PROT_NONE) == -1)
-    {
-        int errsv = errno;//mprotect() sets the errno.
-        PyErr_Format(PyExc_RuntimeError, "The Array Data Protection "
-                     "could not mmap a data region. "
-                     "Returned error code by mmap: %s.", strerror(errsv));
-        return -1;
-    }
-
-    //Update the ary data pointer.
-    PyArray_BYTES(ary) = addr;
-    //We also need to save the start and end address.
-    ary->mprotected_start = (npy_uintp)addr;
-    ary->mprotected_end = ((npy_uintp)addr) + size;
-
-    return 0;
-}/* arydat_malloc */
 
 /*
  *===================================================================

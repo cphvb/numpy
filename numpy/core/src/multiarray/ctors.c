@@ -1087,6 +1087,8 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
         {
             if(PyDistArray_NewBaseArray(self) < 0)
                 goto fail;
+            if(PyDistArray_MallocArray(self) < 0)
+                goto fail;
         }
         else if(PyDistArray_ARRAY(self) != NULL)
         {

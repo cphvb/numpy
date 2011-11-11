@@ -143,6 +143,7 @@ initcphvbnumpy(void)
     cphVB_API[PyDistArray_NewBaseArray_NUM] = (void *)PyDistArray_NewBaseArray;
     cphVB_API[PyDistArray_DelViewArray_NUM] = (void *)PyDistArray_DelViewArray;
     cphVB_API[PyDistArray_HandleArray_NUM] = (void *)PyDistArray_HandleArray;
+    cphVB_API[PyDistArray_MallocArray_NUM] = (void *)PyDistArray_MallocArray;
 
 /*
     cphVB_API[PyDistArray_NewViewArray_NUM] = (void *)PyDistArray_NewViewArray;
