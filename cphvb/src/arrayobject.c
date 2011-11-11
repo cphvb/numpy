@@ -104,7 +104,41 @@ PyDistArray_DelViewArray(PyArrayObject *array)
 static int
 PyDistArray_HandleArray(PyArrayObject *array)
 {
+    cphvb_error err;
+    cphvb_instruction inst;
+    cphvb_intp size = PyArray_NBYTES(array);
+    cphvb_array *a = PyDistArray_ARRAY(array);
+
     printf("PyDistArray_HandleArray\n");
+
+    //Tell the VEM to syncronize the data.
+    inst.opcode = CPHVB_SYNC;
+    inst.operand[0] = a;
+    batch_schedule(&inst);
+    batch_flush();
+
+    //Make sure that the memory is allocated.
+    err = cphvb_malloc_array_data(a);
+    if(err != CPHVB_SUCCESS)
+    {
+        fprintf(stderr, "Error when allocating array (%p): %s\n",
+                        a, cphvb_error_text(err));
+        exit(err);
+    }
+
+    //Move data from NumPy space to CPHVB.
+    memcpy(a->data, array->data, size);
+
+    //Proctect the NumPy array data.
+    //NB: this is not thread-safe and result in duplicated data.
+    if(mprotect(array->data, size, PROT_NONE) == -1)
+    {
+        int errsv = errno;//mprotect() sets the errno.
+        fprintf(stderr,"Error - could not un-protect a data region."
+                       " Returned error code by mprotect: %s.\n",
+                       strerror(errsv));
+        exit(errno);
+    }
 
     return 0;
 
