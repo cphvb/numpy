@@ -86,14 +86,14 @@ PyDistArray_DelViewArray(PyArrayObject *array)
         return 0;
 
     if(PyDistArray_ARRAY(array) != NULL)
+    {
         printf("PyDistArray_DelViewArray - deleting cphVB handled array\n");
+        cphvb_instruction inst;
+        inst.opcode = CPHVB_DESTROY;
+        inst.operand[0] = PyDistArray_ARRAY(array);
+        batch_schedule(&inst);
+    }
 
-    /*
-    //We have to free the protected data pointer when the NumPy array
-    //is not a view.
-    if((array->flags & NPY_OWNDATA) && array->data != NULL)
-        return arydat_free(array);
-    */
     return 0;
 
 } /* PyDistArray_DelViewArray */

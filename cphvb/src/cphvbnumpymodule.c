@@ -59,6 +59,8 @@ PyDistArray_Init(void)
 static void
 PyDistArray_Exit(void)
 {
+    batch_flush();
+
     //De-allocate the memory pool.
 //    mem_pool_finalize();
 
