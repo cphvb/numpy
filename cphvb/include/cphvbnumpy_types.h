@@ -31,6 +31,10 @@ extern "C" {
     NULL when this is a strictly NumPy array.
     cphvb_array*     cphvb_ary;
 
+    Whether cphvb handles the array or not.
+    NB: this is always false when cphvb_ary is NULL.
+    int            cphvb_handled;
+
     Memory protected start address (incl.).
     npy_intp mprotected_start;
 
@@ -45,6 +49,7 @@ extern "C" {
 */
 #define CPHVBNUMPY_ARRAY                \
     cphvb_array*   cphvb_ary;           \
+    int            cphvb_handled;       \
     npy_intp       mprotected_start;    \
     npy_intp       mprotected_end;      \
     PyArrayObject *next;                \

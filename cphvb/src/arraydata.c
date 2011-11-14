@@ -168,6 +168,8 @@ sighandler(int signal_number, siginfo_t *info, void *context)
         //Move data from CPHVB to NumPy space.
         memcpy(ary->data, a->data, size);
 
+        //The array is not handled by cphVB anymore.
+        ary->cphvb_handled = 0;
     }
 }
 

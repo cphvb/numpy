@@ -56,6 +56,9 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
         ary->next->prev = ary_root;
     }
 
+    //cphVB is handling the array.
+    ary->cphvb_handled = 1;
+
     //Compute the stride. Row-Major (C-style)
     s=1;
     for(i=PyArray_NDIM(ary)-1; i>=0; --i)
@@ -116,6 +119,9 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
     cphvb_intp size = PyArray_NBYTES(array);
     cphvb_array *a = PyDistArray_ARRAY(array);
 
+    if(a != NULL && array->cphvb_handled)
+        return 0;//The array is already handled by cphVB.
+
     if(a == NULL)//Array has never been handled by cphVB before.
     {
         PyDistArray_NewBaseArray(array);
@@ -129,7 +135,6 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
         batch_schedule(&inst);
         batch_flush();
     }
-
     assert(a->base == NULL);//Base Array for now.
 
     if(transfer_data)
@@ -145,6 +150,7 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
 
         //We need to move data from NumPy to cphVB address space.
         memcpy(a->data, array->data, size);
+        memset(array->data, 0, size); //DEBUG;
     }
 
     //Proctect the NumPy array data.
