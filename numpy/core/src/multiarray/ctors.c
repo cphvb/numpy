@@ -1035,13 +1035,12 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
     self->data = NULL;
     if (data == NULL) {
         self->flags = DEFAULT;
-        /* CPHVB */
-        if (flags & NPY_FORTRAN) {
+        if (flags) {
             self->flags |= NPY_F_CONTIGUOUS;
             if (nd > 1) {
                 self->flags &= ~NPY_C_CONTIGUOUS;
             }
-            flags = NPY_FORTRAN;
+            flags = NPY_F_CONTIGUOUS;
         }
     }
     else {
@@ -1081,18 +1080,12 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
     PyDistArray_ARRAY(self) = NULL;
     self->data = data;
     if (self->data == NULL) {
-        if(PyDistArray_ARRAY(self) != NULL)/* CPHVB */
-        {
-            PyErr_SetString(PyExc_RuntimeError,
-                            "PyArray_NewFromDescr() must have 'data' "
-                            "set when creating a view.\n");
-            goto fail;
-        }
         /*
          * Allocate something even for zero-space arrays
          * e.g. shape=(0,) -- otherwise buffer exposure
          * (a.data) doesn't work as it should.
          */
+
         if (sd == 0) {
             sd = descr->elsize;
         }
@@ -1101,6 +1094,7 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
             PyErr_NoMemory();
             goto fail;
         }
+        self->flags |= OWNDATA;
 
         /*
          * It is bad to have unitialized OBJECT pointers
@@ -1109,7 +1103,6 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
         if (PyDataType_FLAGCHK(descr, NPY_NEEDS_INIT)) {
             memset(self->data, 0, sd);
         }
-        self->flags |= OWNDATA;
     }
     else {
         /*
@@ -1791,8 +1784,7 @@ PyArray_FromAny(PyObject *op, PyArray_Descr *newtype, int min_depth,
             ret = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type, newtype,
                                                  ndim, dims,
                                                  NULL, NULL,
-                                                 /* CPHVB */
-                                                 flags & NPY_F_CONTIGUOUS, NULL);
+                                                 flags&NPY_F_CONTIGUOUS, NULL);
             if (ret != NULL) {
                 if (ndim > 0) {
                     if (PyArray_AssignFromSequence(ret, op) < 0) {
@@ -1802,7 +1794,7 @@ PyArray_FromAny(PyObject *op, PyArray_Descr *newtype, int min_depth,
                 }
                 else {
                     if (PyArray_DESCR(ret)->f->setitem(op,
-                        PyArray_DATA(ret), ret) < 0) {
+                                                PyArray_DATA(ret), ret) < 0) {
                         Py_DECREF(ret);
                         ret = NULL;
                     }

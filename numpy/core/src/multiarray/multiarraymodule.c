@@ -45,9 +45,6 @@ NPY_NO_EXPORT int NPY_NUMUSERTYPES = 0;
 #include "convert_datatype.h"
 #include "nditer_pywrap.h"
 
-/* CPHVB */
-#include "cphvbnumpy.h"
-
 /* Only here for API compatibility */
 NPY_NO_EXPORT PyTypeObject PyBigArray_Type;
 
@@ -1656,7 +1653,6 @@ _array_fromobject(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kws)
 
     flags |= NPY_FORCECAST;
     Py_XINCREF(type);
-
     ret = PyArray_CheckFromAny(op, type, 0, 0, flags, NULL);
 
     /* CPHVB */
@@ -1692,9 +1688,8 @@ array_empty(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kwds)
     PyArray_Dims shape = {NULL, 0};
     NPY_ORDER order = NPY_CORDER;
     Bool fortran;
-    PyObject *ret = NULL;
     Bool dist = FALSE;
-    int flags = 0;
+    PyObject *ret = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O&O&O&",
                                      kwlist, PyArray_IntpConverter,
@@ -1720,18 +1715,14 @@ array_empty(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kwds)
             goto fail;
     }
 
-    /* CPHVB */
-    if(fortran)
-        flags |= NPY_FORTRAN;
-
-    ret = PyArray_Empty(shape.len, shape.ptr, typecode, flags);
-    PyDimMem_FREE(shape.ptr);
+    ret = PyArray_Empty(shape.len, shape.ptr, typecode, fortran);
 
     /* CPHVB */
     if(dist)
         if(PyDistArray_HandleArray((PyArrayObject *)ret, 0) == -1)
             goto fail;
 
+    PyDimMem_FREE(shape.ptr);
     return ret;
 
  fail:
