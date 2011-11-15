@@ -1,6 +1,6 @@
 #Test and demonstration of DistNumPy.
 import numpy as np
-import distnumpy
+import cphvbnumpy
 import sys
 import time
 import subprocess
@@ -43,7 +43,7 @@ def array_equal(A,B,maxerror=0.0):
     for i in range(len(A)):
         delta = abs(A[i] - B[i])
         if delta > maxerror:
-            print "[rank %d] Delta error:"%(distnumpy.RANK),delta
+            print "Delta error:",delta
             return False
     return True
 
@@ -91,48 +91,42 @@ if __name__ == "__main__":
         script_list = os.listdir(\
                       os.path.dirname(os.path.abspath(__file__)))
 
-    if distnumpy.RANK == 0:
-        print "*"*100
-        print "*"*31, "Testing Distributed Numerical Python", "*"*31
-    distnumpy.evalflush(barrier=True)
+    print "*"*100
+    print "*"*31, "Testing Distributed Numerical Python", "*"*31
+    cphvbnumpy.flush()
     for i in xrange(len(script_list)):
         f = script_list[i]
         if f.startswith("test_") and f.endswith("py")\
            and f not in exclude_list:
             m = f[:-3]#Remove ".py"
             m = __import__(m)
-            #distnumpy.datalayout(None)
-            distnumpy.evalflush(barrier=True)
-            if distnumpy.RANK == 0:
-                print "*"*100
-                print "Testing %s"%f
-            distnumpy.evalflush(barrier=True)
+            print "*"*100
+            print "Testing %s"%f
             err = False
             msg = ""
             r1 = 0; r2 = 0
             if pydebug:
                 r1 = sys.gettotalrefcount()
             try:
-                distnumpy.evalflush(barrier=True)
+                cphvbnumpy.flush()
                 m.run()
-                distnumpy.evalflush(barrier=True)
+                cphvbnumpy.flush()
             except:
-                distnumpy.evalflush(barrier=True)
+                cphvbnumpy.flush()
                 err = True
                 msg = sys.exc_info()[1]
             if pydebug:
                 r2 = sys.gettotalrefcount()
                 if r2 != r1:
-                    print "[rank %d] Memory leak - totrefcount: "\
-                          "from %d to %d\n"%(distnumpy.RANK,r1,r2),
+                    print "Memory leak - totrefcount: "\
+                          "from %d to %d\n"%(r1,r2),
             if err:
-                print "[rank %d] Error in %s! Random seed: %d - "\
-                      "message: %s\n"%(distnumpy.RANK,f, seed, msg),
+                print "Error in %s! Random seed: %d - "\
+                      "message: %s\n"%(f, seed, msg),
             else:
-                print "[rank %d] Succes\n"%(distnumpy.RANK),
-    distnumpy.evalflush(barrier=True)
-    if distnumpy.RANK == 0:
-        print "*"*100
-        print "*"*46, "Finish", "*"*46
-        print "*"*100
+                print "Succes\n",
+    cphvbnumpy.flush()
+    print "*"*100
+    print "*"*46, "Finish", "*"*46
+    print "*"*100
 

@@ -2,13 +2,9 @@ import numpy as np
 import dnumpytest
 import random
 import subprocess
-import distnumpy
+import cphvbnumpy
 
 def run():
-    if distnumpy.SPMD_MODE:
-        print "[rank %d] Warning - ignored in SPMD mode\n"%(distnumpy.RANK),
-        return
-
     try:#This test requires zlib
         import zlib
     except:

@@ -1,7 +1,7 @@
 import numpy as np
 import random
 import dnumpytest
-import distnumpy
+import cphvbnumpy
 
 def gameoflife(W,H,ITER,DIST,random_state):
     random.setstate(random_state)
@@ -57,9 +57,6 @@ def gameoflife(W,H,ITER,DIST,random_state):
     return full
 
 def run():
-    if distnumpy.SPMD_MODE: #SPMD mode is not support since we use random values.
-        print "[rank %d] Warning - ignored in SPMD mode\n"%(distnumpy.RANK),
-        return
     random_state = random.getstate()
     Seq = gameoflife(100,100,5,False,random_state)
     Par = gameoflife(100,100,5,True,random_state)
