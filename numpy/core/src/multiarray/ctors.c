@@ -1090,7 +1090,7 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
             sd = descr->elsize;
         }
         /* CPHVB */
-        if (PyDistArray_MallocArray(self) == -1) {
+        if (PyDistArray_MallocArray(self, sd) == -1) {
             PyErr_NoMemory();
             goto fail;
         }

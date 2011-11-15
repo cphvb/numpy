@@ -47,7 +47,7 @@ extern "C" {
 
 #define PyDistArray_MallocArray_NUM 5
 #define PyDistArray_MallocArray_RETURN int
-#define PyDistArray_MallocArray_PROTO (PyArrayObject *ary)
+#define PyDistArray_MallocArray_PROTO (PyArrayObject *ary, cphvb_intp size)
 
 #define PyDistArray_MfreeArray_NUM 6
 #define PyDistArray_MfreeArray_RETURN int

@@ -32,14 +32,13 @@
 /*
  *===================================================================
  * Allocate cphVB-compatible memory.
- * @array The array that should own the memory.
+ * @array  The array that should own the memory.
+ * @size   The size of the memory allocation (in bytes).
  * @return -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_MallocArray(PyArrayObject *ary)
+PyDistArray_MallocArray(PyArrayObject *ary, cphvb_intp size)
 {
-    cphvb_intp size = PyArray_NBYTES(ary);
-
     //Allocate page-size aligned memory.
     //The MAP_PRIVATE and MAP_ANONYMOUS flags is not 100% portable. See:
     //<http://stackoverflow.com/questions/4779188/how-to-use-mmap-to-allocate-a-memory-in-heap>
@@ -52,17 +51,7 @@ PyDistArray_MallocArray(PyArrayObject *ary)
                      "Returned error code by mmap: %s.", strerror(errsv));
         return -1;
     }
-/*
-    //Protect the memory.
-    if(mprotect(addr, size, PROT_NONE) == -1)
-    {
-        int errsv = errno;//mprotect() sets the errno.
-        PyErr_Format(PyExc_RuntimeError, "The Array Data Protection "
-                     "could not mmap a data region. "
-                     "Returned error code by mmap: %s.", strerror(errsv));
-        return -1;
-    }
-*/
+
     //Update the ary data pointer.
     PyArray_BYTES(ary) = addr;
     //We also need to save the start and end address.
