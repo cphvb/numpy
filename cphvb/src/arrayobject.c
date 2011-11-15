@@ -162,7 +162,6 @@ PyDistArray_DelViewArray(PyArrayObject *array)
     }
 
     return 0;
-
 } /* PyDistArray_DelViewArray */
 
 
@@ -255,6 +254,5 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
         return -1;
     }
     return 0;
-
 } /* PyDistArray_HandleArray */
 

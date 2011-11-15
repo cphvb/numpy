@@ -72,28 +72,19 @@ PyDistArray_Exit(void)
 
 } /* PyDistArray_Exit */
 
-
 /*
  * ===================================================================
- * Executes all appending operations.
- * If the optional option barrier is true, a MPI barrier is included
- * in SPMD mode.
+ * Python wrapper for batch_flush.
  */
-/*
 static PyObject *
-evalflush(PyObject *m, PyObject *args, PyObject *kws)
+_batch_flush(PyObject *m, PyObject *args)
 {
-    static char *kwd[]= {"barrier", NULL};
-    PyObject *barrier = Py_False;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kws, "|O:bool", kwd, &barrier))
+    if (!PyArg_ParseTuple(args, "")) {
         return NULL;
-
-    //The master should also do the operation.
-    //dep_flush(1);
-
+    }
+    batch_flush();
     Py_RETURN_NONE;
-}*/ /* evalflush */
+} /* _batch_flush */
 
 /*
  * ===================================================================
@@ -119,10 +110,9 @@ _handle_array(PyObject *m, PyObject *args)
 } /* _handle_array */
 
 
-static PyMethodDef cphVBMethods[] = {/*
-    {"evalflush", evalflush, METH_VARARGS|METH_KEYWORDS,
-     "Executes all appending operations. If the optional option "\
-     "barrier is true, a MPI barrier is included in SPMD mode"},*/
+static PyMethodDef cphVBMethods[] = {
+    {"flush", _batch_flush, METH_VARARGS,
+     "Executes all appending operations."},
     {"handle_array", _handle_array, METH_VARARGS,
      "Indicate that cphVB should handle the array."},
     {NULL, NULL, 0, NULL}        /* Sentinel */
