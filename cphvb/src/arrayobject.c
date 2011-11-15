@@ -72,6 +72,7 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
     err = vem_create_array(NULL, dtype, PyArray_NDIM(ary), 0, shape,
                            stride, 0, (cphvb_constant)0L,
                            &PyDistArray_ARRAY(ary));
+    assert(PyDistArray_ARRAY(ary) != NULL);
     return err;
 } /* PyDistArray_NewBaseArray */
 
@@ -140,9 +141,9 @@ PyDistArray_NewViewArray(PyArrayObject *ary)
 
 /*
  *===================================================================
- * Delete array view.
- * When it is the last view of the base array, the base array is de-
- * allocated.
+ * Delete array.
+ * It is up to the caller to make sure that no view is deleted
+ * before its base.
  * Return -1 and set exception on error, 0 on success.
  */
 static int
@@ -159,8 +160,18 @@ PyDistArray_DelViewArray(PyArrayObject *array)
         inst.opcode = CPHVB_DESTROY;
         inst.operand[0] = PyDistArray_ARRAY(array);
         batch_schedule(&inst);
-    }
 
+        if(array->base == NULL)//It it a base array.
+        {
+            //Remove the array from the base array collection.
+            if(array->next != NULL)
+                array->next->prev = array->prev;
+            if(array->prev != NULL)
+                array->prev->next = array->next;
+            else
+                ary_root = array->next;
+        }
+    }
     return 0;
 } /* PyDistArray_DelViewArray */
 
@@ -238,7 +249,6 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
                          "array (%p): %s\n", a, cphvb_error_text(err));
             return -1;
         }
-
         //We need to move data from NumPy to cphVB address space.
         memcpy(a->data, array->data, size);
         memset(array->data, 0, size); //DEBUG;
@@ -253,6 +263,9 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
                      strerror(errsv));
         return -1;
     }
+
+    //The array is now handled by cphVB.
+    array->cphvb_handled = 1;
     return 0;
 } /* PyDistArray_HandleArray */
 

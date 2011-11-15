@@ -47,9 +47,9 @@ PyDistArray_NewViewArray(PyArrayObject *ary);
 
 /*
  *===================================================================
- * Delete array view.
- * When it is the last view of the base array, the base array is de-
- * allocated.
+ * Delete array.
+ * It is up to the caller to make sure that no view is deleted
+ * before its base.
  * Return -1 and set exception on error, 0 on success.
  */
 static int
