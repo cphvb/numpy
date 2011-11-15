@@ -8,7 +8,7 @@ def run():
     try:#This test requires zlib
         import zlib
     except:
-        print "[rank %d] Warning - ignored zlib not found\n"%(distnumpy.RANK),
+        print "Warning - ignored zlib not found\n",
         return
 
     max_ndim = 6
@@ -17,10 +17,9 @@ def run():
         A = np.array(src, dtype=float, dist=True)
         fname = "distnumpt_test_matrix.npy"
         np.save(fname,A)
-        Bf = np.load(fname, dist=False)
-        Bd = np.load(fname, dist=True)
+        B = np.load(fname)
 
-        if not dnumpytest.array_equal(Bf,Bd):
+        if not dnumpytest.array_equal(A,B):
             subprocess.check_call(('rm %s'%fname), shell=True)
             raise Exception("Uncorrect result array\n")
         subprocess.check_call(('rm %s'%fname), shell=True)

@@ -1,16 +1,18 @@
 from numpy import *
 import dnumpytest
+import cphvbnumpy
 
 def jacobi(A, B, tol=0.005):
     '''itteratively solving for matrix A with solution vector B
        tol = tolerance for dh/h
        init_val = array of initial values to use in the solver
     '''
-    h = zeros(shape(B), float, dist=A.dist())
+    h = zeros(shape(B), float)
+    cphvbnumpy.handle_array(h)
     dmax = 1.0
     n = 0
-    tmp0 = empty(shape(A), float, dist=A.dist())
-    tmp1 = empty(shape(B), float, dist=A.dist())
+    tmp0 = empty(shape(A), float, dist=True)
+    tmp1 = empty(shape(B), float, dist=True)
     AD = diagonal(A)
     while dmax > tol:
         n += 1
@@ -28,9 +30,12 @@ def jacobi(A, B, tol=0.005):
     return h
 
 def run():
-    A = load("%sJacobi_Amatrix.npy"%dnumpytest.DataSetDir, dist=True)
-    B = load("%sJacobi_Bvector.npy"%dnumpytest.DataSetDir, dist=True)
-    C = load("%sJacobi_Cvector.npy"%dnumpytest.DataSetDir, dist=True)
+    A = load("%sJacobi_Amatrix.npy"%dnumpytest.DataSetDir)
+    B = load("%sJacobi_Bvector.npy"%dnumpytest.DataSetDir)
+    C = load("%sJacobi_Cvector.npy"%dnumpytest.DataSetDir)
+
+    cphvbnumpy.handle_array(A)
+    cphvbnumpy.handle_array(B)
     result = jacobi(A,B)
 
     if not dnumpytest.array_equal(C,result):
