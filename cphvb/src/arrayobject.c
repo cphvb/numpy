@@ -76,6 +76,56 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
 
 /*
  *===================================================================
+ * Create a new of a base array and updates the PyArrayObject.
+ * Return -1 and set exception on error, 0 on success.
+ */
+static int
+PyDistArray_NewViewArray(PyArrayObject *ary)
+{
+    cphvb_error err;
+    cphvb_type dtype = type_py2cph[PyArray_TYPE(ary)];
+    printf("PyDistArray_NewViewArray\n");
+
+    if(ary->base == NULL)
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "PyDistArray_NewViewArray - the PyArrayObject "
+                        "must have a base.\n");
+        return -1;
+    }
+    if(PyDistArray_ARRAY(ary->base) == NULL)
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "PyDistArray_NewViewArray - the base must "
+                        "have an associated cphvb_array.\n");
+        return -1;
+    }
+    if(dtype == CPHVB_UNKNOWN)
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "cphVB does not support the datatype\n");
+        return -1;
+    }
+    if(PyArray_TYPE(ary) != PyArray_TYPE(ary->base))
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "PyDistArray_NewViewArray - the type of the "
+                        "view and base must be identical.\n");
+        return -1;
+    }
+
+    //cphVB is handling the array.
+    ary->cphvb_handled = 1;
+
+    err = vem_create_array(PyDistArray_ARRAY(ary->base),
+                           dtype, PyArray_NDIM(ary), 0,
+                           PyArray_DIMS(ary), PyArray_STRIDES(ary), 0,
+                           (cphvb_constant)0L, &PyDistArray_ARRAY(ary));
+    return err;
+} /* PyDistArray_NewViewArray */
+
+/*
+ *===================================================================
  * Delete array view.
  * When it is the last view of the base array, the base array is de-
  * allocated.
@@ -104,11 +154,13 @@ PyDistArray_DelViewArray(PyArrayObject *array)
 
 /*
  *===================================================================
- * Indicate that cphVB should handle the array.
- * @array The array cphVB should handle.
+ * Indicate that cphVB should handle the array and all associated
+ * array views and the array base.
+ *
+ * @array         The array cphVB should handle.
  * @transfer_data Whether data should be transferred from NumPy to
  *                cphVB address space.
- * Return -1 and set exception on error, 0 on success.
+ * @return        -1 and set exception on error, 0 on success.
  */
 static int
 PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
@@ -118,11 +170,28 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
     cphvb_instruction inst;
     cphvb_intp size = PyArray_NBYTES(array);
     cphvb_array *a = PyDistArray_ARRAY(array);
+    PyArrayObject *base = NULL;
+
+    //Check if the array is a view because in that case we also have to
+    //handle the base array.
+    if(array->base != NULL && PyArray_CheckExact(array->base) &&
+       !PyArray_CHKFLAGS(array, NPY_UPDATEIFCOPY))
+    {
+        base = (PyArrayObject *) array->base;
+        PyDistArray_HandleArray(base, transfer_data);
+    }
 
     if(a != NULL && array->cphvb_handled)
         return 0;//The array is already handled by cphVB.
 
-    if(a == NULL)//Array has never been handled by cphVB before.
+    if(base != NULL)//It's a view.
+    {
+        if(a == NULL)//The view has never been handled by cphVB before.
+            PyDistArray_NewViewArray(array);
+        return 0;
+    }
+    //It's a base array.
+    if(a == NULL)//The base array has never been handled by cphVB before.
     {
         PyDistArray_NewBaseArray(array);
         a = PyDistArray_ARRAY(array);
@@ -135,7 +204,6 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
         batch_schedule(&inst);
         batch_flush();
     }
-    assert(a->base == NULL);//Base Array for now.
 
     if(transfer_data)
     {
@@ -143,9 +211,9 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
         err = cphvb_malloc_array_data(a);
         if(err != CPHVB_SUCCESS)
         {
-            fprintf(stderr, "Error when allocating array (%p): %s\n",
-                            a, cphvb_error_text(err));
-            exit(err);
+            PyErr_Format(PyExc_RuntimeError,"Error when allocating "
+                         "array (%p): %s\n", a, cphvb_error_text(err));
+            return -1;
         }
 
         //We need to move data from NumPy to cphVB address space.
@@ -157,10 +225,10 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
     if(mprotect(array->data, size, PROT_NONE) == -1)
     {
         int errsv = errno;//mprotect() sets the errno.
-        fprintf(stderr,"Error - could not protect a data region."
-                       " Returned error code by mprotect: %s.\n",
-                       strerror(errsv));
-        exit(errno);
+        PyErr_Format(PyExc_RuntimeError,"Error - could not protect a data"
+                     "data region. Returned error code by mprotect: %s.\n",
+                     strerror(errsv));
+        return -1;
     }
     return 0;
 

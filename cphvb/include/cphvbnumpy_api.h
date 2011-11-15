@@ -53,14 +53,12 @@ extern "C" {
 #define PyDistArray_MfreeArray_RETURN int
 #define PyDistArray_MfreeArray_PROTO (PyArrayObject *ary)
 
-/*
-#define PyDistArray_NewViewArray_NUM 10
+#define PyDistArray_NewViewArray_NUM 7
 #define PyDistArray_NewViewArray_RETURN int
-#define PyDistArray_NewViewArray_PROTO (PyArrayObject *orig_ary, PyArrayObject *new_ary, int nslice, dndslice slice[NPY_MAXDIMS])
-*/
+#define PyDistArray_NewViewArray_PROTO (PyArrayObject *ary)
 
 /* Total number of C API pointers */
-#define cphVB_API_pointers 7
+#define cphVB_API_pointers 8
 
 
 #ifdef CPHVBNUMPY_MODULE
@@ -73,10 +71,7 @@ static PyDistArray_DelViewArray_RETURN PyDistArray_DelViewArray PyDistArray_DelV
 static PyDistArray_HandleArray_RETURN PyDistArray_HandleArray PyDistArray_HandleArray_PROTO;
 static PyDistArray_MallocArray_RETURN PyDistArray_MallocArray PyDistArray_MallocArray_PROTO;
 static PyDistArray_MfreeArray_RETURN PyDistArray_MfreeArray PyDistArray_MfreeArray_PROTO;
-
-/*
 static PyDistArray_NewViewArray_RETURN PyDistArray_NewViewArray PyDistArray_NewViewArray_PROTO;
-*/
 
 
 #else
@@ -105,10 +100,8 @@ static void **cphVB_API;
 #define PyDistArray_MfreeArray \
  (*(PyDistArray_MfreeArray_RETURN (*)PyDistArray_MfreeArray_PROTO) cphVB_API[PyDistArray_MfreeArray_NUM])
 
-/*
 #define PyDistArray_NewViewArray \
  (*(PyDistArray_NewViewArray_RETURN (*)PyDistArray_NewViewArray_PROTO) cphVB_API[PyDistArray_NewViewArray_NUM])
-*/
 
 /* Return -1 and set exception on error, 0 on success. */
 static int
