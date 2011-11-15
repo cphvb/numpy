@@ -51,12 +51,14 @@ PyDistArray_MallocArray(PyArrayObject *ary, cphvb_intp size)
                      "Returned error code by mmap: %s.", strerror(errsv));
         return -1;
     }
-
     //Update the ary data pointer.
     PyArray_BYTES(ary) = addr;
     //We also need to save the start and end address.
     ary->mprotected_start = (npy_uintp)addr;
     ary->mprotected_end = ((npy_uintp)addr) + size;
+
+    //Save the number of bytes allocated.
+    ary->data_allocated = size;
 
     return 0;
 }/* PyDistArray_MallocArray */
@@ -72,7 +74,7 @@ PyDistArray_MfreeArray(PyArrayObject *ary)
 {
     void *addr = PyArray_DATA(ary);
 
-    if(munmap(addr, PyArray_NBYTES(ary)) == -1)
+    if(munmap(addr, ary->data_allocated) == -1)
     {
         int errsv = errno;//munmmap() sets the errno.
         PyErr_Format(PyExc_RuntimeError, "The Array Data Protection "

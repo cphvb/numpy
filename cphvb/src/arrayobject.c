@@ -25,6 +25,7 @@
 /*
  *===================================================================
  * Create a new base array and updates the PyArrayObject.
+ * NB: The PyArrayObject must be behaved.
  * Return -1 and set exception on error, 0 on success.
  */
 static int
@@ -77,6 +78,7 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
 /*
  *===================================================================
  * Create a new of a base array and updates the PyArrayObject.
+ * NB: The PyArrayObject must be behaved.
  * Return -1 and set exception on error, 0 on success.
  */
 static int
@@ -84,16 +86,19 @@ PyDistArray_NewViewArray(PyArrayObject *ary)
 {
     cphvb_error err;
     cphvb_type dtype = type_py2cph[PyArray_TYPE(ary)];
+    cphvb_intp offset;
+    char *data = PyArray_BYTES(ary);
+    PyArrayObject *base = (PyArrayObject *) ary->base;
     printf("PyDistArray_NewViewArray\n");
 
-    if(ary->base == NULL)
+    if(base == NULL)
     {
         PyErr_SetString(PyExc_RuntimeError,
                         "PyDistArray_NewViewArray - the PyArrayObject "
                         "must have a base.\n");
         return -1;
     }
-    if(PyDistArray_ARRAY(ary->base) == NULL)
+    if(PyDistArray_ARRAY(base) == NULL)
     {
         PyErr_SetString(PyExc_RuntimeError,
                         "PyDistArray_NewViewArray - the base must "
@@ -106,19 +111,28 @@ PyDistArray_NewViewArray(PyArrayObject *ary)
                         "cphVB does not support the datatype\n");
         return -1;
     }
-    if(PyArray_TYPE(ary) != PyArray_TYPE(ary->base))
+    if(PyArray_TYPE(ary) != PyArray_TYPE(base))
     {
         PyErr_SetString(PyExc_RuntimeError,
                         "PyDistArray_NewViewArray - the type of the "
                         "view and base must be identical.\n");
         return -1;
     }
+    if(base->mprotected_start <= ((cphvb_intp) data) &&
+       base->mprotected_end > ((cphvb_intp) data))
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "PyDistArray_NewViewArray - the view data is "
+                        "not inside the interval of its base array.\n");
+        return -1;
+    }
+    //Compute offset in elements from the start of the base array.
+    offset = ((cphvb_intp) data) - base->mprotected_start;
+    offset /= PyArray_ITEMSIZE(index);
 
-    //cphVB is handling the array.
-    ary->cphvb_handled = 1;
-
-    err = vem_create_array(PyDistArray_ARRAY(ary->base),
-                           dtype, PyArray_NDIM(ary), 0,
+    //Tell the VEM.
+    err = vem_create_array(PyDistArray_ARRAY(base),
+                           dtype, PyArray_NDIM(ary), offset,
                            PyArray_DIMS(ary), PyArray_STRIDES(ary), 0,
                            (cphvb_constant)0L, &PyDistArray_ARRAY(ary));
     return err;
@@ -178,11 +192,17 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
        !PyArray_CHKFLAGS(array, NPY_UPDATEIFCOPY))
     {
         base = (PyArrayObject *) array->base;
-        PyDistArray_HandleArray(base, transfer_data);
+        if(PyDistArray_HandleArray(base, transfer_data) == -1)
+            return -1;
     }
 
-    if(a != NULL && array->cphvb_handled)
-        return 0;//The array is already handled by cphVB.
+    if(!PyArray_ISBEHAVED(array))//The array must be behaved.
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "PyDistArray_HandleArray - the view must be "
+                        "behaved.\n");
+        return -1;
+    }
 
     if(base != NULL)//It's a view.
     {
@@ -190,7 +210,11 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
             PyDistArray_NewViewArray(array);
         return 0;
     }
+
     //It's a base array.
+    if(a != NULL && array->cphvb_handled)
+        return 0;//And it is already being handled by cphVB.
+
     if(a == NULL)//The base array has never been handled by cphVB before.
     {
         PyDistArray_NewBaseArray(array);

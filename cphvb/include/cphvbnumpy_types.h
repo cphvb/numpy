@@ -46,6 +46,10 @@ extern "C" {
 
     Previous array in the array collection.
     PyObjectArray *prev;
+
+    Number of bytes allocated for array data
+    NB: this may be more than the array size.
+    npy_intp      data_allocated;
 */
 #define CPHVBNUMPY_ARRAY                \
     cphvb_array*   cphvb_ary;           \
@@ -54,6 +58,7 @@ extern "C" {
     npy_intp       mprotected_end;      \
     PyArrayObject *next;                \
     PyArrayObject *prev;                \
+    npy_intp       data_allocated;      \
 
 
 

@@ -30,10 +30,20 @@ PyArrayObject *ary_root = NULL;//The root of the base array collection.
 /*
  *===================================================================
  * Create a new base array and updates the PyArrayObject.
+ * NB: The PyArrayObject must be behaved.
  * Return -1 and set exception on error, 0 on success.
  */
 static int
 PyDistArray_NewBaseArray(PyArrayObject *ary);
+
+/*
+ *===================================================================
+ * Create a new of a base array and updates the PyArrayObject.
+ * NB: The PyArrayObject must be behaved.
+ * Return -1 and set exception on error, 0 on success.
+ */
+static int
+PyDistArray_NewViewArray(PyArrayObject *ary);
 
 /*
  *===================================================================
@@ -47,11 +57,13 @@ PyDistArray_DelViewArray(PyArrayObject *array);
 
 /*
  *===================================================================
- * Indicate that cphVB should handle the array.
- * @array The array cphVB should handle.
+ * Indicate that cphVB should handle the array and all associated
+ * array views and the array base.
+ *
+ * @array         The array cphVB should handle.
  * @transfer_data Whether data should be transferred from NumPy to
  *                cphVB address space.
- * Return -1 and set exception on error, 0 on success.
+ * @return        -1 and set exception on error, 0 on success.
  */
 static int
 PyDistArray_HandleArray(PyArrayObject *array, int transfer_data);
