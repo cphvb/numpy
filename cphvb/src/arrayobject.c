@@ -269,3 +269,32 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
     return 0;
 } /* PyDistArray_HandleArray */
 
+
+/*
+ *===================================================================
+ * Easy retrieval of array's base.
+ *
+ * @array         The array view (or base).
+ * @return        The base or NULL on error.
+ */
+static PyArrayObject *
+PyDistArray_BaseArray(PyArrayObject *array)
+{
+    if(array->base == NULL)
+    {
+        assert(array->data != NULL);
+        return array;
+    }
+
+    //To be a view the array must be a PyArrayObject and not have the
+    //flag NPY_UPDATEIFCOPY set.
+    if(PyArray_CheckExact(array->base) &&
+       !PyArray_CHKFLAGS(array, NPY_UPDATEIFCOPY))
+    {
+        return (PyArrayObject *) array->base;
+    }
+
+    PyErr_SetString(PyExc_RuntimeError, "PyDistArray_BaseArray - the "
+                    "array is not a base or a cphVB compatible view.\n");
+    return NULL;
+}/* PyDistArray_BaseArray */

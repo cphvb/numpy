@@ -141,6 +141,7 @@ initcphvbnumpy(void)
     cphVB_API[PyDistArray_MfreeArray_NUM] = (void *)PyDistArray_MfreeArray;
     cphVB_API[PyDistArray_NewViewArray_NUM] = (void *)PyDistArray_NewViewArray;
     cphVB_API[PyDistArray_Ufunc_NUM] = (void *)PyDistArray_Ufunc;
+    cphVB_API[PyDistArray_BaseArray_NUM] = (void *)PyDistArray_BaseArray;
 
     /* Create a CObject containing the API pointer array's address */
     c_api_object = PyCObject_FromVoidPtr((void *)cphVB_API, NULL);

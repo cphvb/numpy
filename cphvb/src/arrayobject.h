@@ -68,6 +68,16 @@ PyDistArray_DelViewArray(PyArrayObject *array);
 static int
 PyDistArray_HandleArray(PyArrayObject *array, int transfer_data);
 
+/*
+ *===================================================================
+ * Easy retrieval of array's base.
+ *
+ * @array         The array view (or base).
+ * @return        The base or NULL on error.
+ */
+static PyArrayObject *
+PyDistArray_BaseArray(PyArrayObject *array);
+
 #ifdef __cplusplus
 }
 #endif

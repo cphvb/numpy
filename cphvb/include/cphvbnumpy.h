@@ -27,11 +27,16 @@ extern "C" {
 #ifdef CPHVBNUMPY_MODULE
 #include "numpy/ndarraytypes.h"
 #include "numpy/arrayobject.h"
+#include "numpy/ufuncobject.h"
 #endif
 
-//Easy attribute retrievals.
-#define PyDistArray_WANT_CPHVB(m) PyArray_CHKFLAGS(m,CPHVB_WANT)
+/* Retrieval of the cphVB array
+ *
+ * @obj      The (PyArrayObject *).
+ * @return   The (cphvb_array *).
+ */
 #define PyDistArray_ARRAY(obj) (((PyArrayObject *)(obj))->cphvb_ary)
+
 
 //Import the API.
 #include "cphvbnumpy_api.h"
