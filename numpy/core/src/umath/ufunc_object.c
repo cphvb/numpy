@@ -1981,9 +1981,50 @@ execute_ufunc_loop(PyUFuncObject *self,
                     void *innerloopdata)
 {
     npy_intp nin = self->nin, nout = self->nout;
+    int i, want_cphvb=0; /* CPHVB */
 
     /* First check for the trivial cases that don't need an iterator */
     if (trivial_loop_ok) {
+
+        /* CPHVB */
+        //Check if one of the operands wants to be handled by cphVB.
+        for(i=0; i<nin; ++i)
+        {
+            PyArrayObject *base = PyDistArray_BaseArray(op[i]);
+            PyErr_Clear();
+            if(base != NULL && PyDistArray_ARRAY(base) != NULL)
+                want_cphvb = 1;
+        }
+        if(want_cphvb)
+        {
+            //Create output arrays if necessary.
+            for(i=nin; i<self->nargs; ++i)
+            {
+                if(op[i] == NULL)
+                {
+                    op[i] = (PyArrayObject *)
+                            PyArray_NewFromDescr(&PyArray_Type,
+                                                 dtype[1],
+                                                 PyArray_NDIM(op[0]),
+                                                 PyArray_DIMS(op[0]),
+                                                 NULL, NULL,
+                                                 PyArray_ISFORTRAN(op[0]) ? NPY_F_CONTIGUOUS : 0,
+                                                 NULL);
+                    /* Call the __prepare_array__ if necessary */
+                    if (prepare_ufunc_output(self, &op[i], arr_prep[0],
+                                             arr_prep_args, 0) < 0) {
+                        return -1;
+                    }
+                    //cphVB should handle the array but no transfer
+                    //is necessary.
+                    PyDistArray_HandleArray(op[i], 0);
+                }
+            }
+            i = PyDistArray_Ufunc(self, op);
+            if(i != 1)//PyDistArray_Ufunc() did something.
+                return i;
+        }
+
         if (nin == 1 && nout == 1) {
             if (op[1] == NULL &&
                         (order == NPY_ANYORDER || order == NPY_KEEPORDER) &&
@@ -2723,10 +2764,6 @@ PyUFunc_GenericFunction(PyUFuncObject *self,
     PyUFunc_clearfperr();
 
     NPY_UF_DBG_PRINT("Executing inner loop\n");
-
-    /* CPHVB */
-    if(trivial_loop_ok)
-        PyDistArray_Ufunc(self, op);
 
     /* Do the ufunc loop */
     retval = execute_ufunc_loop(self, trivial_loop_ok, op, dtype, order,

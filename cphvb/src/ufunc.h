@@ -25,10 +25,12 @@ extern "C" {
 
 /*
  *===================================================================
- * Execute an ufunc.
+ * Execute an ufunc. The function do nothing when the opcode and/or
+ * type is not supported.
  * @ufunc  The ufunc object.
  * @op     List of operands (inputs before outputs).
- * @return -1 and set exception on error, 0 on success.
+ * @return -1 and set exception on error, 0 on success, 1 when doing
+ *         nothing.
  */
 static int
 PyDistArray_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op);
