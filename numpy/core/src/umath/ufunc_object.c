@@ -4443,6 +4443,8 @@ PyUFunc_FromFuncAndDataAndSignature(PyUFuncGenericFunction *func, void **data,
     self->ptr = NULL;
     self->obj = NULL;
     self->userloops=NULL;
+    /* CPHVB */
+    self->opcode = CPHVB_NONE;
 
     if (name == NULL) {
         self->name = "?";

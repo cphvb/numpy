@@ -61,6 +61,14 @@ extern "C" {
     npy_intp       data_allocated;      \
 
 
+// Extension to the PyUFuncGenericFunction
+/*
+    The cphVB opcode that correspond to the ufunc.
+    cphvb_opcode   opcode;
+*/
+#define CPHVBNUMPY_UFUNC                \
+    cphvb_opcode   opcode;              \
+
 
 #ifdef __cplusplus
 }

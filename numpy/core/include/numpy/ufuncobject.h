@@ -3,6 +3,9 @@
 
 #include <numpy/npy_math.h>
 
+/* CPHVB */
+#include "cphvbnumpy_types.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -43,14 +46,14 @@ typedef struct {
         void *ptr;
         PyObject *obj;
         PyObject *userloops;
-    
+
         /* generalized ufunc parameters */
 
         /* 0 for scalar ufunc; 1 for generalized ufunc */
         int core_enabled;
         /* number of distinct dimension names in signature */
         int core_num_dim_ix;
- 
+
         /*
          * dimension indices of input/output argument k are stored in
          * core_dim_ixs[core_offsets[k]..core_offsets[k]+core_num_dims[k]-1]
@@ -70,6 +73,8 @@ typedef struct {
         int *core_offsets;
         /* signature string for printing purpose */
         char *core_signature;
+        /* CPHVB */
+        CPHVBNUMPY_UFUNC;
 } PyUFuncObject;
 
 #include "arrayobject.h"

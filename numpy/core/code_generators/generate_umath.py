@@ -99,11 +99,12 @@ class Ufunc(object):
     identity: identity element for a two-argument function
     docstring: docstring for the ufunc
     type_descriptions: list of TypeDescription objects
-    """
-    def __init__(self, nin, nout, identity, docstring,
+    """                #CPHVB
+    def __init__(self, opcode, nin, nout, identity, docstring,
                  *type_descriptions):
         self.nin = nin
         self.nout = nout
+        self.opcode = opcode#CPHVB
         if identity is None:
             identity = None_
         self.identity = identity
@@ -120,7 +121,7 @@ import string
 if sys.version_info[0] < 3:
     UPPER_TABLE = string.maketrans(string.ascii_lowercase, string.ascii_uppercase)
 else:
-    UPPER_TABLE = bytes.maketrans(bytes(string.ascii_lowercase, "ascii"), 
+    UPPER_TABLE = bytes.maketrans(bytes(string.ascii_lowercase, "ascii"),
             bytes(string.ascii_uppercase, "ascii"))
 
 def english_upper(s):
@@ -229,9 +230,9 @@ for code in 'bhilq':
 # all the function names and their corresponding ufunc signatures.  TD is
 # an object which expands a list of character codes into an array of
 # TypeDescriptions.
-defdict = {
+defdict = {#CPHVB added a opcore for each ufunc.
 'add' :
-    Ufunc(2, 1, Zero,
+    Ufunc('CPHVB_ADD',2, 1, Zero,
           docstrings.get('numpy.core.umath.add'),
           TD(notimes_or_obj),
           [TypeDescription('M', UsesArraysAsData, 'Mm', 'M'),
@@ -241,7 +242,7 @@ defdict = {
           TD(O, f='PyNumber_Add'),
           ),
 'subtract' :
-    Ufunc(2, 1, Zero,
+    Ufunc('CPHVB_SUBTRACT',2, 1, Zero,
           docstrings.get('numpy.core.umath.subtract'),
           TD(notimes_or_obj),
           [TypeDescription('M', UsesArraysAsData, 'Mm', 'M'),
@@ -251,25 +252,25 @@ defdict = {
           TD(O, f='PyNumber_Subtract'),
           ),
 'multiply' :
-    Ufunc(2, 1, One,
+    Ufunc('CPHVB_MULTIPLY',2, 1, One,
           docstrings.get('numpy.core.umath.multiply'),
           TD(notimes_or_obj),
           TD(O, f='PyNumber_Multiply'),
           ),
 'divide' :
-    Ufunc(2, 1, One,
+    Ufunc('CPHVB_DIVIDE',2, 1, One,
           docstrings.get('numpy.core.umath.divide'),
           TD(intfltcmplx),
           TD(O, f='PyNumber_Divide'),
           ),
 'floor_divide' :
-    Ufunc(2, 1, One,
+    Ufunc('CPHVB_FLOOR_DIVIDE',2, 1, One,
           docstrings.get('numpy.core.umath.floor_divide'),
           TD(intfltcmplx),
           TD(O, f='PyNumber_FloorDivide'),
           ),
 'true_divide' :
-    Ufunc(2, 1, One,
+    Ufunc('CPHVB_TRUE_DIVIDE',2, 1, One,
           docstrings.get('numpy.core.umath.true_divide'),
           TD('bBhH', out='d'),
           TD('iIlLqQ', out='d'),
@@ -277,417 +278,417 @@ defdict = {
           TD(O, f='PyNumber_TrueDivide'),
           ),
 'conjugate' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_CONJ',1, 1, None,
           docstrings.get('numpy.core.umath.conjugate'),
           TD(ints+flts+cmplx),
           TD(P, f='conjugate'),
           ),
 'fmod' :
-    Ufunc(2, 1, Zero,
+    Ufunc('CPHVB_FMOD',2, 1, Zero,
           docstrings.get('numpy.core.umath.fmod'),
           TD(ints),
           TD(flts, f='fmod', astype={'e':'f'}),
           TD(P, f='fmod'),
           ),
 'square' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_SQUARE',1, 1, None,
           docstrings.get('numpy.core.umath.square'),
           TD(ints+inexact),
           TD(O, f='Py_square'),
           ),
 'reciprocal' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_RECIPROCAL',1, 1, None,
           docstrings.get('numpy.core.umath.reciprocal'),
           TD(ints+inexact),
           TD(O, f='Py_reciprocal'),
           ),
 'ones_like' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_ONES_LIKE',1, 1, None,
           docstrings.get('numpy.core.umath.ones_like'),
           TD(noobj),
           TD(O, f='Py_get_one'),
           ),
 'power' :
-    Ufunc(2, 1, One,
+    Ufunc('CPHVB_POWER',2, 1, One,
           docstrings.get('numpy.core.umath.power'),
           TD(ints),
           TD(inexact, f='pow', astype={'e':'f'}),
           TD(O, f='npy_ObjectPower'),
           ),
 'absolute' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_ABSOLUTE',1, 1, None,
           docstrings.get('numpy.core.umath.absolute'),
           TD(bints+flts+times),
           TD(cmplx, out=('f', 'd', 'g')),
           TD(O, f='PyNumber_Absolute'),
           ),
 '_arg' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_NONE',1, 1, None,
           docstrings.get('numpy.core.umath._arg'),
           TD(cmplx, out=('f', 'd', 'g')),
           ),
 'negative' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_NEGATIVE',1, 1, None,
           docstrings.get('numpy.core.umath.negative'),
           TD(bints+flts+times),
           TD(cmplx, f='neg'),
           TD(O, f='PyNumber_Negative'),
           ),
 'sign' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_SIGN',1, 1, None,
           docstrings.get('numpy.core.umath.sign'),
           TD(nobool),
           ),
 'greater' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_GREATER',2, 1, None,
           docstrings.get('numpy.core.umath.greater'),
           TD(all, out='?'),
           ),
 'greater_equal' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_GREATER_EQUAL',2, 1, None,
           docstrings.get('numpy.core.umath.greater_equal'),
           TD(all, out='?'),
           ),
 'less' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_LESS',2, 1, None,
           docstrings.get('numpy.core.umath.less'),
           TD(all, out='?'),
           ),
 'less_equal' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_LESS_EQUAL',2, 1, None,
           docstrings.get('numpy.core.umath.less_equal'),
           TD(all, out='?'),
           ),
 'equal' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_EQUAL',2, 1, None,
           docstrings.get('numpy.core.umath.equal'),
           TD(all, out='?'),
           ),
 'not_equal' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_NOT_EQUAL',2, 1, None,
           docstrings.get('numpy.core.umath.not_equal'),
           TD(all, out='?'),
           ),
 'logical_and' :
-    Ufunc(2, 1, One,
+    Ufunc('CPHVB_LOGICAL_AND',2, 1, One,
           docstrings.get('numpy.core.umath.logical_and'),
           TD(noobj, out='?'),
           TD(P, f='logical_and'),
           ),
 'logical_not' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_LOGICAL_NOT',1, 1, None,
           docstrings.get('numpy.core.umath.logical_not'),
           TD(noobj, out='?'),
           TD(P, f='logical_not'),
           ),
 'logical_or' :
-    Ufunc(2, 1, Zero,
+    Ufunc('CPHVB_LOGICAL_OR',2, 1, Zero,
           docstrings.get('numpy.core.umath.logical_or'),
           TD(noobj, out='?'),
           TD(P, f='logical_or'),
           ),
 'logical_xor' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_LOGICAL_XOR',2, 1, None,
           docstrings.get('numpy.core.umath.logical_xor'),
           TD(noobj, out='?'),
           TD(P, f='logical_xor'),
           ),
 'maximum' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_MAXIMUM',2, 1, None,
           docstrings.get('numpy.core.umath.maximum'),
           TD(noobj),
           TD(O, f='npy_ObjectMax')
           ),
 'minimum' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_MINIMUM',2, 1, None,
           docstrings.get('numpy.core.umath.minimum'),
           TD(noobj),
           TD(O, f='npy_ObjectMin')
           ),
 'fmax' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_NONE',2, 1, None,
           docstrings.get('numpy.core.umath.fmax'),
           TD(noobj),
           TD(O, f='npy_ObjectMax')
           ),
 'fmin' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_NONE',2, 1, None,
           docstrings.get('numpy.core.umath.fmin'),
           TD(noobj),
           TD(O, f='npy_ObjectMin')
           ),
 'logaddexp' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_LOGADDEXP',2, 1, None,
           docstrings.get('numpy.core.umath.logaddexp'),
           TD(flts, f="logaddexp", astype={'e':'f'})
           ),
 'logaddexp2' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_LOGADDEXP2',2, 1, None,
           docstrings.get('numpy.core.umath.logaddexp2'),
           TD(flts, f="logaddexp2", astype={'e':'f'})
           ),
 # FIXME: decide if the times should have the bitwise operations.
 'bitwise_and' :
-    Ufunc(2, 1, One,
+    Ufunc('CPHVB_BITWISE_AND',2, 1, One,
           docstrings.get('numpy.core.umath.bitwise_and'),
           TD(bints),
           TD(O, f='PyNumber_And'),
           ),
 'bitwise_or' :
-    Ufunc(2, 1, Zero,
+    Ufunc('CPHVB_BITWISE_OR',2, 1, Zero,
           docstrings.get('numpy.core.umath.bitwise_or'),
           TD(bints),
           TD(O, f='PyNumber_Or'),
           ),
 'bitwise_xor' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_BITWISE_XOR',2, 1, None,
           docstrings.get('numpy.core.umath.bitwise_xor'),
           TD(bints),
           TD(O, f='PyNumber_Xor'),
           ),
 'invert' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_INVERT',1, 1, None,
           docstrings.get('numpy.core.umath.invert'),
           TD(bints),
           TD(O, f='PyNumber_Invert'),
           ),
 'left_shift' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_LEFT_SHIFT',2, 1, None,
           docstrings.get('numpy.core.umath.left_shift'),
           TD(ints),
           TD(O, f='PyNumber_Lshift'),
           ),
 'right_shift' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_RIGHT_SHIFT',2, 1, None,
           docstrings.get('numpy.core.umath.right_shift'),
           TD(ints),
           TD(O, f='PyNumber_Rshift'),
           ),
 'degrees' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_NONE',1, 1, None,
           docstrings.get('numpy.core.umath.degrees'),
           TD(fltsP, f='degrees', astype={'e':'f'}),
           ),
 'rad2deg' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_RAD2DEG',1, 1, None,
           docstrings.get('numpy.core.umath.rad2deg'),
           TD(fltsP, f='rad2deg', astype={'e':'f'}),
           ),
 'radians' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_NONE',1, 1, None,
           docstrings.get('numpy.core.umath.radians'),
           TD(fltsP, f='radians', astype={'e':'f'}),
           ),
 'deg2rad' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_DEG2RAD',1, 1, None,
           docstrings.get('numpy.core.umath.deg2rad'),
           TD(fltsP, f='deg2rad', astype={'e':'f'}),
           ),
 'arccos' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_ARCCOS',1, 1, None,
           docstrings.get('numpy.core.umath.arccos'),
           TD(inexact, f='acos', astype={'e':'f'}),
           TD(P, f='arccos'),
           ),
 'arccosh' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_ARCCOSH',1, 1, None,
           docstrings.get('numpy.core.umath.arccosh'),
           TD(inexact, f='acosh', astype={'e':'f'}),
           TD(P, f='arccosh'),
           ),
 'arcsin' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_ARCSIN',1, 1, None,
           docstrings.get('numpy.core.umath.arcsin'),
           TD(inexact, f='asin', astype={'e':'f'}),
           TD(P, f='arcsin'),
           ),
 'arcsinh' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_ARCSINH',1, 1, None,
           docstrings.get('numpy.core.umath.arcsinh'),
           TD(inexact, f='asinh', astype={'e':'f'}),
           TD(P, f='arcsinh'),
           ),
 'arctan' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_ARCTAN',1, 1, None,
           docstrings.get('numpy.core.umath.arctan'),
           TD(inexact, f='atan', astype={'e':'f'}),
           TD(P, f='arctan'),
           ),
 'arctanh' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_ARCTANH',1, 1, None,
           docstrings.get('numpy.core.umath.arctanh'),
           TD(inexact, f='atanh', astype={'e':'f'}),
           TD(P, f='arctanh'),
           ),
 'cos' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_COS',1, 1, None,
           docstrings.get('numpy.core.umath.cos'),
           TD(inexact, f='cos', astype={'e':'f'}),
           TD(P, f='cos'),
           ),
 'sin' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_SIN',1, 1, None,
           docstrings.get('numpy.core.umath.sin'),
           TD(inexact, f='sin', astype={'e':'f'}),
           TD(P, f='sin'),
           ),
 'tan' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_TAN',1, 1, None,
           docstrings.get('numpy.core.umath.tan'),
           TD(inexact, f='tan', astype={'e':'f'}),
           TD(P, f='tan'),
           ),
 'cosh' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_COSH',1, 1, None,
           docstrings.get('numpy.core.umath.cosh'),
           TD(inexact, f='cosh', astype={'e':'f'}),
           TD(P, f='cosh'),
           ),
 'sinh' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_SINH',1, 1, None,
           docstrings.get('numpy.core.umath.sinh'),
           TD(inexact, f='sinh', astype={'e':'f'}),
           TD(P, f='sinh'),
           ),
 'tanh' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_TANH',1, 1, None,
           docstrings.get('numpy.core.umath.tanh'),
           TD(inexact, f='tanh', astype={'e':'f'}),
           TD(P, f='tanh'),
           ),
 'exp' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_EXP',1, 1, None,
           docstrings.get('numpy.core.umath.exp'),
           TD(inexact, f='exp', astype={'e':'f'}),
           TD(P, f='exp'),
           ),
 'exp2' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_EXP2',1, 1, None,
           docstrings.get('numpy.core.umath.exp2'),
           TD(inexact, f='exp2', astype={'e':'f'}),
           TD(P, f='exp2'),
           ),
 'expm1' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_EXPM1',1, 1, None,
           docstrings.get('numpy.core.umath.expm1'),
           TD(inexact, f='expm1', astype={'e':'f'}),
           TD(P, f='expm1'),
           ),
 'log' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_LOG',1, 1, None,
           docstrings.get('numpy.core.umath.log'),
           TD(inexact, f='log', astype={'e':'f'}),
           TD(P, f='log'),
           ),
 'log2' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_LOG2',1, 1, None,
           docstrings.get('numpy.core.umath.log2'),
           TD(inexact, f='log2', astype={'e':'f'}),
           TD(P, f='log2'),
           ),
 'log10' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_LOG10',1, 1, None,
           docstrings.get('numpy.core.umath.log10'),
           TD(inexact, f='log10', astype={'e':'f'}),
           TD(P, f='log10'),
           ),
 'log1p' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_LOG1P',1, 1, None,
           docstrings.get('numpy.core.umath.log1p'),
           TD(inexact, f='log1p', astype={'e':'f'}),
           TD(P, f='log1p'),
           ),
 'sqrt' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_SQRT',1, 1, None,
           docstrings.get('numpy.core.umath.sqrt'),
           TD(inexact, f='sqrt', astype={'e':'f'}),
           TD(P, f='sqrt'),
           ),
 'ceil' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_CEIL',1, 1, None,
           docstrings.get('numpy.core.umath.ceil'),
           TD(flts, f='ceil', astype={'e':'f'}),
           TD(P, f='ceil'),
           ),
 'trunc' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_TRUNC',1, 1, None,
           docstrings.get('numpy.core.umath.trunc'),
           TD(flts, f='trunc', astype={'e':'f'}),
           TD(P, f='trunc'),
           ),
 'fabs' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_NONE',1, 1, None,
           docstrings.get('numpy.core.umath.fabs'),
           TD(flts, f='fabs', astype={'e':'f'}),
           TD(P, f='fabs'),
        ),
 'floor' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_FLOOR',1, 1, None,
           docstrings.get('numpy.core.umath.floor'),
           TD(flts, f='floor', astype={'e':'f'}),
           TD(P, f='floor'),
           ),
 'rint' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_RINT',1, 1, None,
           docstrings.get('numpy.core.umath.rint'),
           TD(inexact, f='rint', astype={'e':'f'}),
           TD(P, f='rint'),
           ),
 'arctan2' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_ARCTAN2',2, 1, None,
           docstrings.get('numpy.core.umath.arctan2'),
           TD(flts, f='atan2', astype={'e':'f'}),
           TD(P, f='arctan2'),
           ),
 'remainder' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_REMAINDER',2, 1, None,
           docstrings.get('numpy.core.umath.remainder'),
           TD(intflt),
           TD(O, f='PyNumber_Remainder'),
           ),
 'hypot' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_HYPOT',2, 1, None,
           docstrings.get('numpy.core.umath.hypot'),
           TD(flts, f='hypot', astype={'e':'f'}),
           TD(P, f='hypot'),
           ),
 'isnan' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_ISNAN',1, 1, None,
           docstrings.get('numpy.core.umath.isnan'),
           TD(inexact, out='?'),
           ),
 'isinf' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_ISINF',1, 1, None,
           docstrings.get('numpy.core.umath.isinf'),
           TD(inexact, out='?'),
           ),
 'isfinite' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_ISFINITE',1, 1, None,
           docstrings.get('numpy.core.umath.isfinite'),
           TD(inexact, out='?'),
           ),
 'signbit' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_SIGNBIT',1, 1, None,
           docstrings.get('numpy.core.umath.signbit'),
           TD(flts, out='?'),
           ),
 'copysign' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_NONE',2, 1, None,
           docstrings.get('numpy.core.umath.copysign'),
           TD(flts),
           ),
 'nextafter' :
-    Ufunc(2, 1, None,
+    Ufunc('CPHVB_NONE',2, 1, None,
           docstrings.get('numpy.core.umath.nextafter'),
           TD(flts),
           ),
 'spacing' :
-    Ufunc(1, 1, None,
+    Ufunc('CPHVB_NONE',1, 1, None,
           docstrings.get('numpy.core.umath.spacing'),
           TD(flts),
           ),
 'modf' :
-    Ufunc(1, 2, None,
+    Ufunc('CPHVB_MODF',1, 2, None,
           docstrings.get('numpy.core.umath.modf'),
           TD(flts),
           ),
@@ -828,6 +829,8 @@ r"""f = PyUFunc_FromFuncAndData(%s_functions, %s_data, %s_signatures, %d,
                                                 uf.nin, uf.nout,
                                                 uf.identity,
                                                 name, docstring))
+        #CPHVB
+        mlist.append(r"""((PyUFuncObject *)f)->opcode = %s;""" % uf.opcode)
         mlist.append(r"""PyDict_SetItemString(dictionary, "%s", f);""" % name)
         mlist.append(r"""Py_DECREF(f);""")
         code3list.append('\n'.join(mlist))
