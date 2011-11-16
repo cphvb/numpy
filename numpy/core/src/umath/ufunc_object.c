@@ -41,6 +41,9 @@
 
 #include "ufunc_object.h"
 
+/* CPHVB */
+#include "cphvbnumpy.h"
+
 /********** PRINTF DEBUG TRACING **************/
 #define NPY_UF_DBG_TRACING 0
 
@@ -2720,6 +2723,10 @@ PyUFunc_GenericFunction(PyUFuncObject *self,
     PyUFunc_clearfperr();
 
     NPY_UF_DBG_PRINT("Executing inner loop\n");
+
+    /* CPHVB */
+    if(trivial_loop_ok)
+        PyDistArray_Ufunc(self, op);
 
     /* Do the ufunc loop */
     retval = execute_ufunc_loop(self, trivial_loop_ok, op, dtype, order,

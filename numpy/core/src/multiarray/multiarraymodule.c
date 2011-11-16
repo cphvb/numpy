@@ -3883,7 +3883,6 @@ PyMODINIT_FUNC initmultiarray(void) {
     //CPHVB
     if(import_cphvbnumpy())
         goto err;
-    Py_AtExit(PyDistArray_Exit);
 
     return RETVAL;
 

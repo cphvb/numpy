@@ -41,6 +41,9 @@
 #include "__umath_generated.c"
 #include "__ufunc_api.c"
 
+/* CPHVB */
+#include <cphvbnumpy.h>
+
 static PyUFuncGenericFunction pyfunc_functions[] = {PyUFunc_On_Om};
 
 static PyObject *
@@ -308,6 +311,10 @@ PyMODINIT_FUNC initumath(void)
         }
         return RETVAL;
     }
+
+    //CPHVB
+    if(import_cphvbnumpy())
+        goto err;
 
     /* Initialize the types */
     if (PyType_Ready(&PyUFunc_Type) < 0)

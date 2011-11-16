@@ -801,6 +801,9 @@ def configuration(parent_package='',top_path=None):
     multiarray_deps.append(join('..','..','cphvb','include', 'cphvbnumpy.h'))
     multiarray_deps.append(join('..','..','cphvb','include', 'cphvbnumpy_api.h'))
     multiarray_deps.append(join('..','..','cphvb','include', 'cphvbnumpy_types.h'))
+    umath_deps.append(join('..','..','cphvb','include', 'cphvbnumpy.h'))
+    umath_deps.append(join('..','..','cphvb','include', 'cphvbnumpy_api.h'))
+    umath_deps.append(join('..','..','cphvb','include', 'cphvbnumpy_types.h'))
     cphvb_install_dir = join('..','..','..','..')#Default location
     try:
         cphvb_install_dir = os.path.abspath(os.environ['CPHVB_INSTALL_DIR'])

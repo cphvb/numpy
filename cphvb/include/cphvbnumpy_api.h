@@ -57,21 +57,27 @@ extern "C" {
 #define PyDistArray_NewViewArray_RETURN int
 #define PyDistArray_NewViewArray_PROTO (PyArrayObject *ary)
 
+#define PyDistArray_Ufunc_NUM 8
+#define PyDistArray_Ufunc_RETURN int
+#define PyDistArray_Ufunc_PROTO (PyUFuncObject *ufunc, PyArrayObject **op)
+
+
 /* Total number of C API pointers */
-#define cphVB_API_pointers 8
+#define cphVB_API_pointers 9
 
 
 #ifdef CPHVBNUMPY_MODULE
 /* This section is used when compiling distnumpymodule.c */
 
-static PyDistArray_Init_RETURN PyDistArray_Init PyDistArray_Init_PROTO;
-static PyDistArray_Exit_RETURN PyDistArray_Exit PyDistArray_Exit_PROTO;
+static PyDistArray_Init_RETURN         PyDistArray_Init         PyDistArray_Init_PROTO;
+static PyDistArray_Exit_RETURN         PyDistArray_Exit         PyDistArray_Exit_PROTO;
 static PyDistArray_NewBaseArray_RETURN PyDistArray_NewBaseArray PyDistArray_NewBaseArray_PROTO;
 static PyDistArray_DelViewArray_RETURN PyDistArray_DelViewArray PyDistArray_DelViewArray_PROTO;
-static PyDistArray_HandleArray_RETURN PyDistArray_HandleArray PyDistArray_HandleArray_PROTO;
-static PyDistArray_MallocArray_RETURN PyDistArray_MallocArray PyDistArray_MallocArray_PROTO;
-static PyDistArray_MfreeArray_RETURN PyDistArray_MfreeArray PyDistArray_MfreeArray_PROTO;
+static PyDistArray_HandleArray_RETURN  PyDistArray_HandleArray  PyDistArray_HandleArray_PROTO;
+static PyDistArray_MallocArray_RETURN  PyDistArray_MallocArray  PyDistArray_MallocArray_PROTO;
+static PyDistArray_MfreeArray_RETURN   PyDistArray_MfreeArray   PyDistArray_MfreeArray_PROTO;
 static PyDistArray_NewViewArray_RETURN PyDistArray_NewViewArray PyDistArray_NewViewArray_PROTO;
+static PyDistArray_Ufunc_RETURN        PyDistArray_Ufunc        PyDistArray_Ufunc_PROTO;
 
 
 #else
@@ -102,6 +108,9 @@ static void **cphVB_API;
 
 #define PyDistArray_NewViewArray \
  (*(PyDistArray_NewViewArray_RETURN (*)PyDistArray_NewViewArray_PROTO) cphVB_API[PyDistArray_NewViewArray_NUM])
+
+#define PyDistArray_Ufunc \
+ (*(PyDistArray_Ufunc_RETURN (*)PyDistArray_Ufunc_PROTO) cphVB_API[PyDistArray_Ufunc_NUM])
 
 /* Return -1 and set exception on error, 0 on success. */
 static int

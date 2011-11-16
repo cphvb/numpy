@@ -30,10 +30,12 @@
 #include "vem_interface.h"
 #include "arraydata.h"
 #include "batch.h"
+#include "ufunc.h"
 #include "arrayobject.c"
 #include "vem_interface.c"
 #include "arraydata.c"
 #include "batch.c"
+#include "ufunc.c"
 
 /*
  * ===================================================================
@@ -138,6 +140,7 @@ initcphvbnumpy(void)
     cphVB_API[PyDistArray_MallocArray_NUM] = (void *)PyDistArray_MallocArray;
     cphVB_API[PyDistArray_MfreeArray_NUM] = (void *)PyDistArray_MfreeArray;
     cphVB_API[PyDistArray_NewViewArray_NUM] = (void *)PyDistArray_NewViewArray;
+    cphVB_API[PyDistArray_Ufunc_NUM] = (void *)PyDistArray_Ufunc;
 
     /* Create a CObject containing the API pointer array's address */
     c_api_object = PyCObject_FromVoidPtr((void *)cphVB_API, NULL);
@@ -150,4 +153,7 @@ initcphvbnumpy(void)
 
     // Init DistNumPy
     PyDistArray_Init();
+
+    // Run PyDistArray_Exit() on Python exit.
+    Py_AtExit(PyDistArray_Exit);
 }
