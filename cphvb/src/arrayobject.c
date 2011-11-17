@@ -60,16 +60,26 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
     //cphVB is handling the array.
     ary->cphvb_handled = 1;
 
-    //Compute the stride. Row-Major (C-style)
-    s=1;
-    for(i=PyArray_NDIM(ary)-1; i>=0; --i)
+    //We handle scalars as 1-dim array with size 1.
+    cphvb_intp ndims = PyArray_NDIM(ary);
+    if(PyArray_IsZeroDim(ary))
     {
-        stride[i] = s;
-        shape[i] = (cphvb_index) PyArray_DIM(ary,i);
-        s *= shape[i];
+        ndims = 1;
+        stride[0] = 1;
+        shape[0] = 1;
     }
-
-    err = vem_create_array(NULL, dtype, PyArray_NDIM(ary), 0, shape,
+    else
+    {
+        //Compute the stride. Row-Major (C-style)
+        s=1;
+        for(i=PyArray_NDIM(ary)-1; i>=0; --i)
+        {
+            stride[i] = s;
+            shape[i] = (cphvb_index) PyArray_DIM(ary,i);
+            s *= shape[i];
+        }
+    }
+    err = vem_create_array(NULL, dtype, ndims, 0, shape,
                            stride, 0, (cphvb_constant)0L,
                            &PyDistArray_ARRAY(ary));
     assert(PyDistArray_ARRAY(ary) != NULL);
@@ -189,7 +199,6 @@ PyDistArray_DelViewArray(PyArrayObject *array)
 static int
 PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
 {
-    printf("PyDistArray_HandleArray, transfer_data: %d\n", transfer_data);
     cphvb_error err;
     cphvb_instruction inst;
     cphvb_intp size = PyArray_NBYTES(array);
