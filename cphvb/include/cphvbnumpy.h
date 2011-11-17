@@ -41,6 +41,27 @@ extern "C" {
 //Import the API.
 #include "cphvbnumpy_api.h"
 
+
+//Check that the definitions in numpy are in accordance with cphVB.
+#if NPY_BITSOF_SHORT != 16
+#    error the NPY_BITSOF_INT not 16 bit
+#endif
+#if NPY_BITSOF_INT != 32
+#    error the NPY_BITSOF_INT not 32 bit
+#endif
+#if NPY_BITSOF_LONG != 32 && NPY_BITSOF_LONG != 64
+#    error the NPY_BITSOF_LONG not 32 or 64 bit
+#endif
+#if NPY_BITSOF_LONGLONG != 64
+#    error the NPY_BITSOF_LONGLONG not 64 bit
+#endif
+#if NPY_BITSOF_FLOAT != 32
+#    error the NPY_BITSOF_FLOAT not 32 bit
+#endif
+#if NPY_BITSOF_FLOAT == 64
+#    error the NPY_BITSOF_FLOAT not 64 bit
+#endif
+
 #ifdef __cplusplus
 }
 #endif
