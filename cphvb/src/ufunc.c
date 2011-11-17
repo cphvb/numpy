@@ -27,12 +27,12 @@
  *         nothing.
  */
 static int
-PyDistArray_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
+PyCphVB_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
 {
     int i;
     cphvb_instruction inst;
     cphvb_error err;
-    printf("PyDistArray_Ufunc: %s\n", cphvb_opcode_text(ufunc->opcode));
+    printf("PyCphVB_Ufunc: %s\n", cphvb_opcode_text(ufunc->opcode));
 
     if(ufunc->opcode == CPHVB_NONE)
         return 1;//opcode not supported.
@@ -42,7 +42,7 @@ PyDistArray_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
 
     //Make sure cphVB handles all operands.
     for(i=0; i<ufunc->nargs; ++i)
-        PyDistArray_HandleArray(op[i], 1);
+        PyCphVB_HandleArray(op[i], 1);
 
     //Create an instruction that represent the ufunc operation.
     //Note that the outputs are the first operands.
@@ -50,12 +50,12 @@ PyDistArray_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
     for(i=0; i<ufunc->nin; ++i)
     {
         cphvb_intp j = i + ufunc->nout;
-        inst.operand[j] = PyDistArray_ARRAY(op[i]);
+        inst.operand[j] = PyCphVB_ARRAY(op[i]);
     }
     for(i=0; i<ufunc->nout; ++i)
     {
         cphvb_intp j = i + ufunc->nin;
-        inst.operand[i] = PyDistArray_ARRAY(op[j]);
+        inst.operand[i] = PyCphVB_ARRAY(op[j]);
     }
 
     //Broadcast to match the number of dimensions of the output by
@@ -123,5 +123,5 @@ PyDistArray_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
         batch_schedule(&inst);
 
     return 0;
-}/* PyDistArray_Ufunc */
+}/* PyCphVB_Ufunc */
 

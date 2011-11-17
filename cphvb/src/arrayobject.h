@@ -34,7 +34,7 @@ PyArrayObject *ary_root = NULL;//The root of the base array collection.
  * Return -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_NewBaseArray(PyArrayObject *ary);
+PyCphVB_NewBaseArray(PyArrayObject *ary);
 
 /*
  *===================================================================
@@ -43,7 +43,7 @@ PyDistArray_NewBaseArray(PyArrayObject *ary);
  * Return -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_NewViewArray(PyArrayObject *ary);
+PyCphVB_NewViewArray(PyArrayObject *ary);
 
 /*
  *===================================================================
@@ -53,7 +53,7 @@ PyDistArray_NewViewArray(PyArrayObject *ary);
  * Return -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_DelViewArray(PyArrayObject *array);
+PyCphVB_DelViewArray(PyArrayObject *array);
 
 /*
  *===================================================================
@@ -66,7 +66,7 @@ PyDistArray_DelViewArray(PyArrayObject *array);
  * @return        -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_HandleArray(PyArrayObject *array, int transfer_data);
+PyCphVB_HandleArray(PyArrayObject *array, int transfer_data);
 
 /*
  *===================================================================
@@ -76,7 +76,7 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data);
  * @return        The base or NULL on error.
  */
 static PyArrayObject *
-PyDistArray_BaseArray(PyArrayObject *array);
+PyCphVB_BaseArray(PyArrayObject *array);
 
 #ifdef __cplusplus
 }

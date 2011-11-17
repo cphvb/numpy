@@ -268,7 +268,7 @@ array_dealloc(PyArrayObject *self) {
              */
         }
         /* CPHVB */
-        if(PyDistArray_DelViewArray(self) == -1)
+        if(PyCphVB_DelViewArray(self) == -1)
         {
             PyErr_Print();
             PyErr_Clear();

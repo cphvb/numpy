@@ -25,45 +25,45 @@ extern "C" {
 
 /* C API functions */
 
-#define PyDistArray_Init_NUM 0
-#define PyDistArray_Init_RETURN int
-#define PyDistArray_Init_PROTO (void)
+#define PyCphVB_Init_NUM 0
+#define PyCphVB_Init_RETURN int
+#define PyCphVB_Init_PROTO (void)
 
-#define PyDistArray_Exit_NUM 1
-#define PyDistArray_Exit_RETURN void
-#define PyDistArray_Exit_PROTO (void)
+#define PyCphVB_Exit_NUM 1
+#define PyCphVB_Exit_RETURN void
+#define PyCphVB_Exit_PROTO (void)
 
-#define PyDistArray_NewBaseArray_NUM 2
-#define PyDistArray_NewBaseArray_RETURN int
-#define PyDistArray_NewBaseArray_PROTO (PyArrayObject *ary)
+#define PyCphVB_NewBaseArray_NUM 2
+#define PyCphVB_NewBaseArray_RETURN int
+#define PyCphVB_NewBaseArray_PROTO (PyArrayObject *ary)
 
-#define PyDistArray_DelViewArray_NUM 3
-#define PyDistArray_DelViewArray_RETURN int
-#define PyDistArray_DelViewArray_PROTO (PyArrayObject *array)
+#define PyCphVB_DelViewArray_NUM 3
+#define PyCphVB_DelViewArray_RETURN int
+#define PyCphVB_DelViewArray_PROTO (PyArrayObject *array)
 
-#define PyDistArray_HandleArray_NUM 4
-#define PyDistArray_HandleArray_RETURN int
-#define PyDistArray_HandleArray_PROTO (PyArrayObject *array, int transfer_data)
+#define PyCphVB_HandleArray_NUM 4
+#define PyCphVB_HandleArray_RETURN int
+#define PyCphVB_HandleArray_PROTO (PyArrayObject *array, int transfer_data)
 
-#define PyDistArray_MallocArray_NUM 5
-#define PyDistArray_MallocArray_RETURN int
-#define PyDistArray_MallocArray_PROTO (PyArrayObject *ary, cphvb_intp size)
+#define PyCphVB_MallocArray_NUM 5
+#define PyCphVB_MallocArray_RETURN int
+#define PyCphVB_MallocArray_PROTO (PyArrayObject *ary, cphvb_intp size)
 
-#define PyDistArray_MfreeArray_NUM 6
-#define PyDistArray_MfreeArray_RETURN int
-#define PyDistArray_MfreeArray_PROTO (PyArrayObject *ary)
+#define PyCphVB_MfreeArray_NUM 6
+#define PyCphVB_MfreeArray_RETURN int
+#define PyCphVB_MfreeArray_PROTO (PyArrayObject *ary)
 
-#define PyDistArray_NewViewArray_NUM 7
-#define PyDistArray_NewViewArray_RETURN int
-#define PyDistArray_NewViewArray_PROTO (PyArrayObject *ary)
+#define PyCphVB_NewViewArray_NUM 7
+#define PyCphVB_NewViewArray_RETURN int
+#define PyCphVB_NewViewArray_PROTO (PyArrayObject *ary)
 
-#define PyDistArray_Ufunc_NUM 8
-#define PyDistArray_Ufunc_RETURN int
-#define PyDistArray_Ufunc_PROTO (PyUFuncObject *ufunc, PyArrayObject **op)
+#define PyCphVB_Ufunc_NUM 8
+#define PyCphVB_Ufunc_RETURN int
+#define PyCphVB_Ufunc_PROTO (PyUFuncObject *ufunc, PyArrayObject **op)
 
-#define PyDistArray_BaseArray_NUM 9
-#define PyDistArray_BaseArray_RETURN PyArrayObject *
-#define PyDistArray_BaseArray_PROTO (PyArrayObject *array)
+#define PyCphVB_BaseArray_NUM 9
+#define PyCphVB_BaseArray_RETURN PyArrayObject *
+#define PyCphVB_BaseArray_PROTO (PyArrayObject *array)
 
 
 /* Total number of C API pointers */
@@ -73,16 +73,16 @@ extern "C" {
 #ifdef CPHVBNUMPY_MODULE
 /* This section is used when compiling distnumpymodule.c */
 
-static PyDistArray_Init_RETURN         PyDistArray_Init         PyDistArray_Init_PROTO;
-static PyDistArray_Exit_RETURN         PyDistArray_Exit         PyDistArray_Exit_PROTO;
-static PyDistArray_NewBaseArray_RETURN PyDistArray_NewBaseArray PyDistArray_NewBaseArray_PROTO;
-static PyDistArray_DelViewArray_RETURN PyDistArray_DelViewArray PyDistArray_DelViewArray_PROTO;
-static PyDistArray_HandleArray_RETURN  PyDistArray_HandleArray  PyDistArray_HandleArray_PROTO;
-static PyDistArray_MallocArray_RETURN  PyDistArray_MallocArray  PyDistArray_MallocArray_PROTO;
-static PyDistArray_MfreeArray_RETURN   PyDistArray_MfreeArray   PyDistArray_MfreeArray_PROTO;
-static PyDistArray_NewViewArray_RETURN PyDistArray_NewViewArray PyDistArray_NewViewArray_PROTO;
-static PyDistArray_Ufunc_RETURN        PyDistArray_Ufunc        PyDistArray_Ufunc_PROTO;
-static PyDistArray_BaseArray_RETURN    PyDistArray_BaseArray    PyDistArray_BaseArray_PROTO;
+static PyCphVB_Init_RETURN         PyCphVB_Init         PyCphVB_Init_PROTO;
+static PyCphVB_Exit_RETURN         PyCphVB_Exit         PyCphVB_Exit_PROTO;
+static PyCphVB_NewBaseArray_RETURN PyCphVB_NewBaseArray PyCphVB_NewBaseArray_PROTO;
+static PyCphVB_DelViewArray_RETURN PyCphVB_DelViewArray PyCphVB_DelViewArray_PROTO;
+static PyCphVB_HandleArray_RETURN  PyCphVB_HandleArray  PyCphVB_HandleArray_PROTO;
+static PyCphVB_MallocArray_RETURN  PyCphVB_MallocArray  PyCphVB_MallocArray_PROTO;
+static PyCphVB_MfreeArray_RETURN   PyCphVB_MfreeArray   PyCphVB_MfreeArray_PROTO;
+static PyCphVB_NewViewArray_RETURN PyCphVB_NewViewArray PyCphVB_NewViewArray_PROTO;
+static PyCphVB_Ufunc_RETURN        PyCphVB_Ufunc        PyCphVB_Ufunc_PROTO;
+static PyCphVB_BaseArray_RETURN    PyCphVB_BaseArray    PyCphVB_BaseArray_PROTO;
 
 
 #else
@@ -90,35 +90,35 @@ static PyDistArray_BaseArray_RETURN    PyDistArray_BaseArray    PyDistArray_Base
 
 static void **cphVB_API;
 
-#define PyDistArray_Init \
- (*(PyDistArray_Init_RETURN (*)PyDistArray_Init_PROTO) cphVB_API[PyDistArray_Init_NUM])
+#define PyCphVB_Init \
+ (*(PyCphVB_Init_RETURN (*)PyCphVB_Init_PROTO) cphVB_API[PyCphVB_Init_NUM])
 
-#define PyDistArray_Exit \
- (*(PyDistArray_Exit_RETURN (*)PyDistArray_Exit_PROTO) cphVB_API[PyDistArray_Exit_NUM])
+#define PyCphVB_Exit \
+ (*(PyCphVB_Exit_RETURN (*)PyCphVB_Exit_PROTO) cphVB_API[PyCphVB_Exit_NUM])
 
-#define PyDistArray_NewBaseArray \
- (*(PyDistArray_NewBaseArray_RETURN (*)PyDistArray_NewBaseArray_PROTO) cphVB_API[PyDistArray_NewBaseArray_NUM])
+#define PyCphVB_NewBaseArray \
+ (*(PyCphVB_NewBaseArray_RETURN (*)PyCphVB_NewBaseArray_PROTO) cphVB_API[PyCphVB_NewBaseArray_NUM])
 
-#define PyDistArray_DelViewArray \
- (*(PyDistArray_DelViewArray_RETURN (*)PyDistArray_DelViewArray_PROTO) cphVB_API[PyDistArray_DelViewArray_NUM])
+#define PyCphVB_DelViewArray \
+ (*(PyCphVB_DelViewArray_RETURN (*)PyCphVB_DelViewArray_PROTO) cphVB_API[PyCphVB_DelViewArray_NUM])
 
-#define PyDistArray_HandleArray \
- (*(PyDistArray_HandleArray_RETURN (*)PyDistArray_HandleArray_PROTO) cphVB_API[PyDistArray_HandleArray_NUM])
+#define PyCphVB_HandleArray \
+ (*(PyCphVB_HandleArray_RETURN (*)PyCphVB_HandleArray_PROTO) cphVB_API[PyCphVB_HandleArray_NUM])
 
-#define PyDistArray_MallocArray \
- (*(PyDistArray_MallocArray_RETURN (*)PyDistArray_MallocArray_PROTO) cphVB_API[PyDistArray_MallocArray_NUM])
+#define PyCphVB_MallocArray \
+ (*(PyCphVB_MallocArray_RETURN (*)PyCphVB_MallocArray_PROTO) cphVB_API[PyCphVB_MallocArray_NUM])
 
-#define PyDistArray_MfreeArray \
- (*(PyDistArray_MfreeArray_RETURN (*)PyDistArray_MfreeArray_PROTO) cphVB_API[PyDistArray_MfreeArray_NUM])
+#define PyCphVB_MfreeArray \
+ (*(PyCphVB_MfreeArray_RETURN (*)PyCphVB_MfreeArray_PROTO) cphVB_API[PyCphVB_MfreeArray_NUM])
 
-#define PyDistArray_NewViewArray \
- (*(PyDistArray_NewViewArray_RETURN (*)PyDistArray_NewViewArray_PROTO) cphVB_API[PyDistArray_NewViewArray_NUM])
+#define PyCphVB_NewViewArray \
+ (*(PyCphVB_NewViewArray_RETURN (*)PyCphVB_NewViewArray_PROTO) cphVB_API[PyCphVB_NewViewArray_NUM])
 
-#define PyDistArray_Ufunc \
- (*(PyDistArray_Ufunc_RETURN (*)PyDistArray_Ufunc_PROTO) cphVB_API[PyDistArray_Ufunc_NUM])
+#define PyCphVB_Ufunc \
+ (*(PyCphVB_Ufunc_RETURN (*)PyCphVB_Ufunc_PROTO) cphVB_API[PyCphVB_Ufunc_NUM])
 
-#define PyDistArray_BaseArray \
- (*(PyDistArray_BaseArray_RETURN (*)PyDistArray_BaseArray_PROTO) cphVB_API[PyDistArray_BaseArray_NUM])
+#define PyCphVB_BaseArray \
+ (*(PyCphVB_BaseArray_RETURN (*)PyCphVB_BaseArray_PROTO) cphVB_API[PyCphVB_BaseArray_NUM])
 
 /* Return -1 and set exception on error, 0 on success. */
 static int

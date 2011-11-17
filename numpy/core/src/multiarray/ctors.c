@@ -1077,7 +1077,7 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
     }
 
     /* CPHVB */
-    PyDistArray_ARRAY(self) = NULL;
+    PyCphVB_ARRAY(self) = NULL;
     self->data = data;
     if (self->data == NULL) {
         /*
@@ -1090,7 +1090,7 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
             sd = descr->elsize;
         }
         /* CPHVB */
-        if (PyDistArray_MallocArray(self, sd) == -1) {
+        if (PyCphVB_MallocArray(self, sd) == -1) {
             PyErr_NoMemory();
             goto fail;
         }

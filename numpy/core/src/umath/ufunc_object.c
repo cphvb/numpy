@@ -1990,9 +1990,9 @@ execute_ufunc_loop(PyUFuncObject *self,
         //Check if one of the operands wants to be handled by cphVB.
         for(i=0; i<nin; ++i)
         {
-            PyArrayObject *base = PyDistArray_BaseArray(op[i]);
+            PyArrayObject *base = PyCphVB_BaseArray(op[i]);
             PyErr_Clear();
-            if(base != NULL && PyDistArray_ARRAY(base) != NULL)
+            if(base != NULL && PyCphVB_ARRAY(base) != NULL)
                 want_cphvb = 1;
         }
         if(want_cphvb)
@@ -2017,11 +2017,11 @@ execute_ufunc_loop(PyUFuncObject *self,
                     }
                     //cphVB should handle the array but no transfer
                     //is necessary.
-                    PyDistArray_HandleArray(op[i], 0);
+                    PyCphVB_HandleArray(op[i], 0);
                 }
             }
-            i = PyDistArray_Ufunc(self, op);
-            if(i != 1)//PyDistArray_Ufunc() did something.
+            i = PyCphVB_Ufunc(self, op);
+            if(i != 1)//PyCphVB_Ufunc() did something.
                 return i;
         }
 

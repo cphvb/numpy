@@ -33,7 +33,7 @@ extern "C" {
  *         nothing.
  */
 static int
-PyDistArray_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op);
+PyCphVB_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op);
 
 #ifdef __cplusplus
 }

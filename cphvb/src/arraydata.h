@@ -31,7 +31,7 @@ extern "C" {
  * @return -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_MallocArray(PyArrayObject *ary, cphvb_intp size);
+PyCphVB_MallocArray(PyArrayObject *ary, cphvb_intp size);
 
 /*
  *===================================================================
@@ -40,7 +40,7 @@ PyDistArray_MallocArray(PyArrayObject *ary, cphvb_intp size);
  * @return -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_MfreeArray(PyArrayObject *ary);
+PyCphVB_MfreeArray(PyArrayObject *ary);
 
 /*
  *===================================================================

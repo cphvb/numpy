@@ -29,7 +29,7 @@
  * Return -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_NewBaseArray(PyArrayObject *ary)
+PyCphVB_NewBaseArray(PyArrayObject *ary)
 {
     int i;
     cphvb_index s;
@@ -38,7 +38,7 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
     cphvb_error err;
     cphvb_type dtype = type_py2cph[PyArray_TYPE(ary)];
 
-    printf("PyDistArray_NewBaseArray - type: %s\n",cphvb_type_text(dtype));
+    printf("PyCphVB_NewBaseArray - type: %s\n",cphvb_type_text(dtype));
 
     if(dtype == CPHVB_UNKNOWN)
     {
@@ -81,10 +81,10 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
     }
     err = vem_create_array(NULL, dtype, ndims, 0, shape,
                            stride, 0, (cphvb_constant)0L,
-                           &PyDistArray_ARRAY(ary));
-    assert(PyDistArray_ARRAY(ary) != NULL);
+                           &PyCphVB_ARRAY(ary));
+    assert(PyCphVB_ARRAY(ary) != NULL);
     return err;
-} /* PyDistArray_NewBaseArray */
+} /* PyCphVB_NewBaseArray */
 
 /*
  *===================================================================
@@ -93,26 +93,26 @@ PyDistArray_NewBaseArray(PyArrayObject *ary)
  * Return -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_NewViewArray(PyArrayObject *ary)
+PyCphVB_NewViewArray(PyArrayObject *ary)
 {
     cphvb_error err;
     cphvb_type dtype = type_py2cph[PyArray_TYPE(ary)];
     cphvb_intp offset;
     char *data = PyArray_BYTES(ary);
     PyArrayObject *base = (PyArrayObject *) ary->base;
-    printf("PyDistArray_NewViewArray\n");
+    printf("PyCphVB_NewViewArray\n");
 
     if(base == NULL)
     {
         PyErr_SetString(PyExc_RuntimeError,
-                        "PyDistArray_NewViewArray - the PyArrayObject "
+                        "PyCphVB_NewViewArray - the PyArrayObject "
                         "must have a base.\n");
         return -1;
     }
-    if(PyDistArray_ARRAY(base) == NULL)
+    if(PyCphVB_ARRAY(base) == NULL)
     {
         PyErr_SetString(PyExc_RuntimeError,
-                        "PyDistArray_NewViewArray - the base must "
+                        "PyCphVB_NewViewArray - the base must "
                         "have an associated cphvb_array.\n");
         return -1;
     }
@@ -125,7 +125,7 @@ PyDistArray_NewViewArray(PyArrayObject *ary)
     if(PyArray_TYPE(ary) != PyArray_TYPE(base))
     {
         PyErr_SetString(PyExc_RuntimeError,
-                        "PyDistArray_NewViewArray - the type of the "
+                        "PyCphVB_NewViewArray - the type of the "
                         "view and base must be identical.\n");
         return -1;
     }
@@ -133,7 +133,7 @@ PyDistArray_NewViewArray(PyArrayObject *ary)
        base->mprotected_end > ((cphvb_intp) data))
     {
         PyErr_SetString(PyExc_RuntimeError,
-                        "PyDistArray_NewViewArray - the view data is "
+                        "PyCphVB_NewViewArray - the view data is "
                         "not inside the interval of its base array.\n");
         return -1;
     }
@@ -142,12 +142,12 @@ PyDistArray_NewViewArray(PyArrayObject *ary)
     offset /= PyArray_ITEMSIZE(index);
 
     //Tell the VEM.
-    err = vem_create_array(PyDistArray_ARRAY(base),
+    err = vem_create_array(PyCphVB_ARRAY(base),
                            dtype, PyArray_NDIM(ary), offset,
                            PyArray_DIMS(ary), PyArray_STRIDES(ary), 0,
-                           (cphvb_constant)0L, &PyDistArray_ARRAY(ary));
+                           (cphvb_constant)0L, &PyCphVB_ARRAY(ary));
     return err;
-} /* PyDistArray_NewViewArray */
+} /* PyCphVB_NewViewArray */
 
 /*
  *===================================================================
@@ -157,18 +157,18 @@ PyDistArray_NewViewArray(PyArrayObject *ary)
  * Return -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_DelViewArray(PyArrayObject *array)
+PyCphVB_DelViewArray(PyArrayObject *array)
 {
     //Free the data pointer in the NumPy address space.
-    if(PyDistArray_MfreeArray(array) == -1)
+    if(PyCphVB_MfreeArray(array) == -1)
         return 0;
 
-    if(PyDistArray_ARRAY(array) != NULL)
+    if(PyCphVB_ARRAY(array) != NULL)
     {
-        printf("PyDistArray_DelViewArray - deleting cphVB handled array\n");
+        printf("PyCphVB_DelViewArray - deleting cphVB handled array\n");
         cphvb_instruction inst;
         inst.opcode = CPHVB_DESTROY;
-        inst.operand[0] = PyDistArray_ARRAY(array);
+        inst.operand[0] = PyCphVB_ARRAY(array);
         batch_schedule(&inst);
 
         if(array->base == NULL)//It it a base array.
@@ -183,7 +183,7 @@ PyDistArray_DelViewArray(PyArrayObject *array)
         }
     }
     return 0;
-} /* PyDistArray_DelViewArray */
+} /* PyCphVB_DelViewArray */
 
 
 /*
@@ -197,12 +197,12 @@ PyDistArray_DelViewArray(PyArrayObject *array)
  * @return        -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
+PyCphVB_HandleArray(PyArrayObject *array, int transfer_data)
 {
     cphvb_error err;
     cphvb_instruction inst;
     cphvb_intp size = PyArray_NBYTES(array);
-    cphvb_array *a = PyDistArray_ARRAY(array);
+    cphvb_array *a = PyCphVB_ARRAY(array);
     PyArrayObject *base = NULL;
 
     //Check if the array is a view because in that case we also have to
@@ -211,14 +211,14 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
        !PyArray_CHKFLAGS(array, NPY_UPDATEIFCOPY))
     {
         base = (PyArrayObject *) array->base;
-        if(PyDistArray_HandleArray(base, transfer_data) == -1)
+        if(PyCphVB_HandleArray(base, transfer_data) == -1)
             return -1;
     }
 
     if(!PyArray_ISBEHAVED(array))//The array must be behaved.
     {
         PyErr_SetString(PyExc_RuntimeError,
-                        "PyDistArray_HandleArray - the view must be "
+                        "PyCphVB_HandleArray - the view must be "
                         "behaved.\n");
         return -1;
     }
@@ -226,7 +226,7 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
     if(base != NULL)//It's a view.
     {
         if(a == NULL)//The view has never been handled by cphVB before.
-            PyDistArray_NewViewArray(array);
+            PyCphVB_NewViewArray(array);
         return 0;
     }
 
@@ -236,8 +236,8 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
 
     if(a == NULL)//The base array has never been handled by cphVB before.
     {
-        PyDistArray_NewBaseArray(array);
-        a = PyDistArray_ARRAY(array);
+        PyCphVB_NewBaseArray(array);
+        a = PyCphVB_ARRAY(array);
     }
     else if(transfer_data)
     {
@@ -276,7 +276,7 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
     //The array is now handled by cphVB.
     array->cphvb_handled = 1;
     return 0;
-} /* PyDistArray_HandleArray */
+} /* PyCphVB_HandleArray */
 
 
 /*
@@ -287,7 +287,7 @@ PyDistArray_HandleArray(PyArrayObject *array, int transfer_data)
  * @return        The base or NULL on error.
  */
 static PyArrayObject *
-PyDistArray_BaseArray(PyArrayObject *array)
+PyCphVB_BaseArray(PyArrayObject *array)
 {
     if(array->base == NULL)
     {
@@ -303,7 +303,7 @@ PyDistArray_BaseArray(PyArrayObject *array)
         return (PyArrayObject *) array->base;
     }
 
-    PyErr_SetString(PyExc_RuntimeError, "PyDistArray_BaseArray - the "
+    PyErr_SetString(PyExc_RuntimeError, "PyCphVB_BaseArray - the "
                     "array is not a base or a cphVB compatible view.\n");
     return NULL;
-}/* PyDistArray_BaseArray */
+}/* PyCphVB_BaseArray */

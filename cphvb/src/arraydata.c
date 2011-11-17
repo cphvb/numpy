@@ -37,7 +37,7 @@
  * @return -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_MallocArray(PyArrayObject *ary, cphvb_intp size)
+PyCphVB_MallocArray(PyArrayObject *ary, cphvb_intp size)
 {
     //Allocate page-size aligned memory.
     //The MAP_PRIVATE and MAP_ANONYMOUS flags is not 100% portable. See:
@@ -61,7 +61,7 @@ PyDistArray_MallocArray(PyArrayObject *ary, cphvb_intp size)
     ary->data_allocated = size;
 
     return 0;
-}/* PyDistArray_MallocArray */
+}/* PyCphVB_MallocArray */
 
 /*
  *===================================================================
@@ -70,7 +70,7 @@ PyDistArray_MallocArray(PyArrayObject *ary, cphvb_intp size)
  * @return -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_MfreeArray(PyArrayObject *ary)
+PyCphVB_MfreeArray(PyArrayObject *ary)
 {
     void *addr = PyArray_DATA(ary);
 
@@ -83,7 +83,7 @@ PyDistArray_MfreeArray(PyArrayObject *ary)
         return -1;
     }
     return 0;
-} /* PyDistArray_MfreeArray */
+} /* PyCphVB_MfreeArray */
 
 /*
  *===================================================================
@@ -114,7 +114,7 @@ sighandler(int signal_number, siginfo_t *info, void *context)
     {
         cphvb_instruction inst;
         cphvb_intp size = PyArray_NBYTES(ary);
-        cphvb_array *a = PyDistArray_ARRAY(ary);
+        cphvb_array *a = PyCphVB_ARRAY(ary);
         printf("Warning - un-distributing array(%p) because of "
                "direct data access(%p). size: %ld\n", a, info->si_addr, size);
 

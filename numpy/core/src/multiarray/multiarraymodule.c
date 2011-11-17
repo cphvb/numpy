@@ -1657,7 +1657,7 @@ _array_fromobject(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kws)
 
     /* CPHVB */
     if(dist)
-        if(PyDistArray_HandleArray((PyArrayObject *)ret, 1) == -1)
+        if(PyCphVB_HandleArray((PyArrayObject *)ret, 1) == -1)
             goto finish;
 
  finish:
@@ -1719,7 +1719,7 @@ array_empty(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kwds)
 
     /* CPHVB */
     if(dist)
-        if(PyDistArray_HandleArray((PyArrayObject *)ret, 0) == -1)
+        if(PyCphVB_HandleArray((PyArrayObject *)ret, 0) == -1)
             goto fail;
 
     PyDimMem_FREE(shape.ptr);

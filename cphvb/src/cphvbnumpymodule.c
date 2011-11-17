@@ -43,7 +43,7 @@
  * Return -1 and set exception on error, 0 on success.
  */
 static int
-PyDistArray_Init(void)
+PyCphVB_Init(void)
 {
     //Initiate the VEM interface.
     vem_if_init();
@@ -52,14 +52,14 @@ PyDistArray_Init(void)
     arydat_init();
 
     return 0;
-} /* PyDistArray_Init */
+} /* PyCphVB_Init */
 
 /*
  * ===================================================================
  * De-initialization of distnumpy.
  */
 static void
-PyDistArray_Exit(void)
+PyCphVB_Exit(void)
 {
     batch_flush();
 
@@ -72,7 +72,7 @@ PyDistArray_Exit(void)
     //Finalize the VEM interface.
     vem_if_finalize();
 
-} /* PyDistArray_Exit */
+} /* PyCphVB_Exit */
 
 /*
  * ===================================================================
@@ -90,7 +90,7 @@ _batch_flush(PyObject *m, PyObject *args)
 
 /*
  * ===================================================================
- * Python wrapper for PyDistArray_HandleArray.
+ * Python wrapper for PyCphVB_HandleArray.
  */
 static PyObject *
 _handle_array(PyObject *m, PyObject *args)
@@ -105,7 +105,7 @@ _handle_array(PyObject *m, PyObject *args)
         return NULL;
     }
 
-    if(PyDistArray_HandleArray((PyArrayObject *) obj, 1) != 0)
+    if(PyCphVB_HandleArray((PyArrayObject *) obj, 1) != 0)
         return NULL;
 
     Py_RETURN_NONE;
@@ -132,16 +132,16 @@ initcphvbnumpy(void)
         return;
 
     /* Initialize the C API pointer array */
-    cphVB_API[PyDistArray_Init_NUM] = (void *)PyDistArray_Init;
-    cphVB_API[PyDistArray_Exit_NUM] = (void *)PyDistArray_Exit;
-    cphVB_API[PyDistArray_NewBaseArray_NUM] = (void *)PyDistArray_NewBaseArray;
-    cphVB_API[PyDistArray_DelViewArray_NUM] = (void *)PyDistArray_DelViewArray;
-    cphVB_API[PyDistArray_HandleArray_NUM] = (void *)PyDistArray_HandleArray;
-    cphVB_API[PyDistArray_MallocArray_NUM] = (void *)PyDistArray_MallocArray;
-    cphVB_API[PyDistArray_MfreeArray_NUM] = (void *)PyDistArray_MfreeArray;
-    cphVB_API[PyDistArray_NewViewArray_NUM] = (void *)PyDistArray_NewViewArray;
-    cphVB_API[PyDistArray_Ufunc_NUM] = (void *)PyDistArray_Ufunc;
-    cphVB_API[PyDistArray_BaseArray_NUM] = (void *)PyDistArray_BaseArray;
+    cphVB_API[PyCphVB_Init_NUM] = (void *)PyCphVB_Init;
+    cphVB_API[PyCphVB_Exit_NUM] = (void *)PyCphVB_Exit;
+    cphVB_API[PyCphVB_NewBaseArray_NUM] = (void *)PyCphVB_NewBaseArray;
+    cphVB_API[PyCphVB_DelViewArray_NUM] = (void *)PyCphVB_DelViewArray;
+    cphVB_API[PyCphVB_HandleArray_NUM] = (void *)PyCphVB_HandleArray;
+    cphVB_API[PyCphVB_MallocArray_NUM] = (void *)PyCphVB_MallocArray;
+    cphVB_API[PyCphVB_MfreeArray_NUM] = (void *)PyCphVB_MfreeArray;
+    cphVB_API[PyCphVB_NewViewArray_NUM] = (void *)PyCphVB_NewViewArray;
+    cphVB_API[PyCphVB_Ufunc_NUM] = (void *)PyCphVB_Ufunc;
+    cphVB_API[PyCphVB_BaseArray_NUM] = (void *)PyCphVB_BaseArray;
 
     /* Create a CObject containing the API pointer array's address */
     c_api_object = PyCObject_FromVoidPtr((void *)cphVB_API, NULL);
@@ -153,8 +153,8 @@ initcphvbnumpy(void)
     import_array();
 
     // Init DistNumPy
-    PyDistArray_Init();
+    PyCphVB_Init();
 
-    // Run PyDistArray_Exit() on Python exit.
-    Py_AtExit(PyDistArray_Exit);
+    // Run PyCphVB_Exit() on Python exit.
+    Py_AtExit(PyCphVB_Exit);
 }

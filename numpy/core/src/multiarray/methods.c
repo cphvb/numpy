@@ -1446,7 +1446,7 @@ array_setstate(PyArrayObject *self, PyObject *args)
 
     if ((self->flags & OWNDATA)) {
         if (self->data != NULL) {
-            if(PyDistArray_DelViewArray(self) == -1)/* CPHVB */
+            if(PyCphVB_DelViewArray(self) == -1)/* CPHVB */
                 return NULL;
         }
         self->flags &= ~OWNDATA;
@@ -1479,7 +1479,7 @@ array_setstate(PyArrayObject *self, PyObject *args)
         self->data = datastr;
         if (!_IsAligned(self) || swap) {
             intp num = PyArray_NBYTES(self);
-            if (PyDistArray_MallocArray(self,num) == -1) {/* CPHVB */
+            if (PyCphVB_MallocArray(self,num) == -1) {/* CPHVB */
                 self->nd = 0;
                 PyDimMem_FREE(self->dimensions);
                 return PyErr_NoMemory();
@@ -1518,7 +1518,7 @@ array_setstate(PyArrayObject *self, PyObject *args)
     }
     else {
         /* CPHVB */
-        if(PyDistArray_MallocArray(self,PyArray_NBYTES(self)) == -1)
+        if(PyCphVB_MallocArray(self,PyArray_NBYTES(self)) == -1)
         {
             if (self->dimensions)
                 PyDimMem_FREE(self->dimensions);

@@ -35,7 +35,7 @@ extern "C" {
  * @obj      The (PyArrayObject *).
  * @return   The (cphvb_array *).
  */
-#define PyDistArray_ARRAY(obj) (((PyArrayObject *)(obj))->cphvb_ary)
+#define PyCphVB_ARRAY(obj) (((PyArrayObject *)(obj))->cphvb_ary)
 
 
 //Import the API.
