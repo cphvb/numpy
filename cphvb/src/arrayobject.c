@@ -95,9 +95,11 @@ PyCphVB_NewBaseArray(PyArrayObject *ary)
 static int
 PyCphVB_NewViewArray(PyArrayObject *ary)
 {
+    int i;
     cphvb_error err;
     cphvb_type dtype = type_py2cph[PyArray_TYPE(ary)];
     cphvb_intp offset;
+    cphvb_intp strides[CPHVB_MAX_NO_OPERANDS];
     char *data = PyArray_BYTES(ary);
     PyArrayObject *base = (PyArrayObject *) ary->base;
     printf("PyCphVB_NewViewArray\n");
@@ -129,22 +131,32 @@ PyCphVB_NewViewArray(PyArrayObject *ary)
                         "view and base must be identical.\n");
         return -1;
     }
-    if(base->mprotected_start <= ((cphvb_intp) data) &&
-       base->mprotected_end > ((cphvb_intp) data))
+    if(base->mprotected_start > ((cphvb_intp) data) ||
+       base->mprotected_end <= ((cphvb_intp) data))
     {
-        PyErr_SetString(PyExc_RuntimeError,
-                        "PyCphVB_NewViewArray - the view data is "
-                        "not inside the interval of its base array.\n");
+        PyErr_Format(PyExc_RuntimeError, "PyCphVB_NewViewArray - the "
+                     "view data (%p) is not inside the interval of "
+                     "its base array (%p to %p).\n", data, base->data,
+                     (char *) base->mprotected_end);
         return -1;
     }
     //Compute offset in elements from the start of the base array.
     offset = ((cphvb_intp) data) - base->mprotected_start;
-    offset /= PyArray_ITEMSIZE(index);
+
+    //Convert bytes to element size.
+    //This works because the array is behaved.
+    assert(offset % PyArray_ITEMSIZE(ary) == 0);
+    offset /= PyArray_ITEMSIZE(ary);
+    for(i=0; i<PyArray_NDIM(ary); ++i)
+    {
+        strides[i] = PyArray_STRIDE(ary,i) / PyArray_ITEMSIZE(ary);
+        assert(PyArray_STRIDE(ary,i) % PyArray_ITEMSIZE(ary) == 0);
+    }
 
     //Tell the VEM.
     err = vem_create_array(PyCphVB_ARRAY(base),
                            dtype, PyArray_NDIM(ary), offset,
-                           PyArray_DIMS(ary), PyArray_STRIDES(ary), 0,
+                           PyArray_DIMS(ary), strides, 0,
                            (cphvb_constant)0L, &PyCphVB_ARRAY(ary));
     return err;
 } /* PyCphVB_NewViewArray */
@@ -226,7 +238,7 @@ PyCphVB_HandleArray(PyArrayObject *array, int transfer_data)
     if(base != NULL)//It's a view.
     {
         if(a == NULL)//The view has never been handled by cphVB before.
-            PyCphVB_NewViewArray(array);
+            return PyCphVB_NewViewArray(array);
         return 0;
     }
 
