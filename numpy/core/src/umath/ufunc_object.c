@@ -1843,7 +1843,8 @@ iterator_loop(PyUFuncObject *self,
                     PyObject **arr_prep,
                     PyObject *arr_prep_args,
                     PyUFuncGenericFunction innerloop,
-                    void *innerloopdata)
+                    void *innerloopdata,
+                    int cphvb_want)/* CPHVB */
 {
     npy_intp i, nin = self->nin, nout = self->nout;
     npy_intp nop = nin + nout;
@@ -1901,6 +1902,12 @@ iterator_loop(PyUFuncObject *self,
         if (op[i] == NULL) {
             op[i] = op_it[i];
             Py_INCREF(op[i]);
+            /* CPHVB */
+            //cphVB should handle the array but no transfer
+            //is necessary.
+            PyCphVB_HandleArray(op[i], 0);
+            //Any error will be handled in PyCphVB_Ufunc().
+            PyErr_Clear();
         }
     }
 
@@ -1915,6 +1922,17 @@ iterator_loop(PyUFuncObject *self,
 
     /* Only do the loop if the iteration size is non-zero */
     if (NpyIter_GetIterSize(iter) != 0) {
+
+        /* CPHVB */
+        if(cphvb_want)
+        {
+            int cphret = PyCphVB_Ufunc(self, op);
+            if(cphret != 1)//PyCphVB_Ufunc() was performed.
+            {
+                NpyIter_Deallocate(iter);
+                return cphret;
+            }
+        }
 
         /* Reset the iterator with the base pointers from the wrapped outputs */
         for (i = 0; i < nin; ++i) {
@@ -1983,48 +2001,26 @@ execute_ufunc_loop(PyUFuncObject *self,
     npy_intp nin = self->nin, nout = self->nout;
     int i, want_cphvb=0; /* CPHVB */
 
-    /* First check for the trivial cases that don't need an iterator */
-    if (trivial_loop_ok) {
-
-        /* CPHVB */
-        //Check if one of the operands wants to be handled by cphVB.
-        for(i=0; i<nin; ++i)
+    /* CPHVB */
+    //Check if one of the operands wants to be handled by cphVB.
+    if(trivial_loop_ok)
+        for(i=0; i<self->nargs; ++i)
         {
-            PyArrayObject *base = PyCphVB_BaseArray(op[i]);
-            PyErr_Clear();
-            if(base != NULL && PyCphVB_ARRAY(base) != NULL)
-                want_cphvb = 1;
-        }
-        if(want_cphvb)
-        {
-            //Create output arrays if necessary.
-            for(i=nin; i<self->nargs; ++i)
+            if(op[i] != NULL)
             {
-                if(op[i] == NULL)
+                PyArrayObject *base = PyCphVB_BaseArray(op[i]);
+                PyErr_Clear();
+                if(base != NULL && PyCphVB_ARRAY(base) != NULL)
                 {
-                    op[i] = (PyArrayObject *)
-                            PyArray_NewFromDescr(&PyArray_Type,
-                                                 dtype[1],
-                                                 PyArray_NDIM(op[0]),
-                                                 PyArray_DIMS(op[0]),
-                                                 NULL, NULL,
-                                                 PyArray_ISFORTRAN(op[0]) ? NPY_F_CONTIGUOUS : 0,
-                                                 NULL);
-                    /* Call the __prepare_array__ if necessary */
-                    if (prepare_ufunc_output(self, &op[i], arr_prep[0],
-                                             arr_prep_args, 0) < 0) {
-                        return -1;
-                    }
-                    //cphVB should handle the array but no transfer
-                    //is necessary.
-                    PyCphVB_HandleArray(op[i], 0);
+                    want_cphvb = 1;
+                    trivial_loop_ok = 0;//It is not trivial anymore.
+                    break;
                 }
             }
-            i = PyCphVB_Ufunc(self, op);
-            if(i != 1)//PyCphVB_Ufunc() did something.
-                return i;
         }
 
+    /* First check for the trivial cases that don't need an iterator */
+    if (trivial_loop_ok) {
         if (nin == 1 && nout == 1) {
             if (op[1] == NULL &&
                         (order == NPY_ANYORDER || order == NPY_KEEPORDER) &&
@@ -2127,7 +2123,7 @@ execute_ufunc_loop(PyUFuncObject *self,
     NPY_UF_DBG_PRINT("iterator loop\n");
     if (iterator_loop(self, op, dtype, order,
                     buffersize, arr_prep, arr_prep_args,
-                    innerloop, innerloopdata) < 0) {
+                    innerloop, innerloopdata, want_cphvb) < 0) {
         return -1;
     }
 

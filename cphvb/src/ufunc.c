@@ -42,7 +42,13 @@ PyCphVB_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
 
     //Make sure cphVB handles all operands.
     for(i=0; i<ufunc->nargs; ++i)
-        PyCphVB_HandleArray(op[i], 1);
+    {
+        if(PyCphVB_HandleArray(op[i], 1) != 0)
+        {
+            PyErr_Clear();
+            return 1;//This in not a fatal error.
+        }
+    }
 
     //Create an instruction that represent the ufunc operation.
     //Note that the outputs are the first operands.
@@ -62,59 +68,53 @@ PyCphVB_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
     //appending and extending 1-length dimensions.
     for(i=ufunc->nout; i<ufunc->nargs; ++i)
     {
-        if(inst.operand[i] != CPHVB_CONSTANT )//&&
-           //inst.operand[i]->ndim < inst.operand[0]->ndim)
+        cphvb_intp j;
+        cphvb_intp shape[CPHVB_MAXDIM];
+        cphvb_intp stride[CPHVB_MAXDIM];
+        cphvb_array *tary;
+        cphvb_intp nd_diff = inst.operand[0]->ndim -
+                             inst.operand[i]->ndim;
+        int broadcast = 0; // false
+        for(j=inst.operand[0]->ndim-1; j>=nd_diff; --j)
         {
-            cphvb_intp j;
-            cphvb_intp shape[CPHVB_MAXDIM];
-            cphvb_intp stride[CPHVB_MAXDIM];
-            cphvb_array *tary;
-            cphvb_intp nd_diff = inst.operand[0]->ndim -
-                                 inst.operand[i]->ndim;
-            int broadcast = 0; // false
-            for(j=inst.operand[0]->ndim-1; j>=nd_diff; --j)
+            shape[j] = inst.operand[i]->shape[j-nd_diff];
+            if(shape[j] < inst.operand[0]->shape[j])
             {
-                shape[j] = inst.operand[i]->shape[j-nd_diff];
-                if(shape[j] < inst.operand[0]->shape[j])
-                {
-                    assert(shape[j] == 1);
-                    shape[j] = inst.operand[0]->shape[j];
-                    stride[j] = 0;
-                    broadcast = 1; // true
-                }
-                else
-                {
-                    stride[j] = inst.operand[i]->stride[j-nd_diff];
-                }
-            }
-            for(j=nd_diff-1; j>=0; --j)
-            {
-                shape[j] = 1;
+                assert(shape[j] == 1);
+                shape[j] = inst.operand[0]->shape[j];
                 stride[j] = 0;
                 broadcast = 1; // true
             }
-            if (broadcast)
+            else
             {
-                err = vem_create_array(cphvb_base_array(inst.operand[i]),
-                                       inst.operand[i]->type,
-                                       inst.operand[0]->ndim,
-                                       inst.operand[i]->start,
-                                       shape,
-                                       stride,
-                                       NPY_FALSE,
-                                       (cphvb_constant)0L,
-                                       &tary);
-                if(err)
-                {
-                    char errtxt[256];
-                    sprintf(errtxt, "Ufunc - internal error when "
-                            "calling vem_create_array(): %s.\n",
-                            cphvb_error_text(err));
-                    PyErr_SetString(PyExc_RuntimeError, errtxt);
-                    return -1;
-                }
-                inst.operand[i] = tary;
+                stride[j] = inst.operand[i]->stride[j-nd_diff];
             }
+        }
+        for(j=nd_diff-1; j>=0; --j)
+        {
+            shape[j] = 1;
+            stride[j] = 0;
+            broadcast = 1; // true
+        }
+        if (broadcast)
+        {
+            err = vem_create_array(cphvb_base_array(inst.operand[i]),
+                                   inst.operand[i]->type,
+                                   inst.operand[0]->ndim,
+                                   inst.operand[i]->start,
+                                   shape,
+                                   stride,
+                                   NPY_FALSE,
+                                   (cphvb_constant)0L,
+                                   &tary);
+            if(err)
+            {
+                PyErr_Format(PyExc_RuntimeError, "Ufunc - internal "
+                             "error when calling vem_create_array(): "
+                             "%s.\n", cphvb_error_text(err));
+                return -1;
+            }
+            inst.operand[i] = tary;
         }
     }
     //Only execute the ufunc if the output is greater than zero.
