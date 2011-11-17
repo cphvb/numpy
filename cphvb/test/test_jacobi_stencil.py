@@ -1,5 +1,5 @@
 import numpy as np
-import dnumpytest
+import numpytest
 
 def jacobi_sencil(H,W,Dist):
     full = np.zeros((H+2,W+2), dtype=np.double, dist=Dist)
@@ -40,7 +40,7 @@ def run():
     Seq = jacobi_sencil(5,5,False)
     Par = jacobi_sencil(5,5,True)
 
-    if not dnumpytest.array_equal(Seq,Par):
+    if not numpytest.array_equal(Seq,Par):
         raise Exception("Uncorrect result matrix\n")
 
 if __name__ == "__main__":

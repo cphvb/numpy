@@ -1,5 +1,5 @@
 from numpy import *
-import dnumpytest
+import numpytest
 import cphvbnumpy
 
 def jacobi(A, B, tol=0.005):
@@ -30,15 +30,15 @@ def jacobi(A, B, tol=0.005):
     return h
 
 def run():
-    A = load("%sJacobi_Amatrix.npy"%dnumpytest.DataSetDir)
-    B = load("%sJacobi_Bvector.npy"%dnumpytest.DataSetDir)
-    C = load("%sJacobi_Cvector.npy"%dnumpytest.DataSetDir)
+    A = load("%sJacobi_Amatrix.npy"%numpytest.DataSetDir)
+    B = load("%sJacobi_Bvector.npy"%numpytest.DataSetDir)
+    C = load("%sJacobi_Cvector.npy"%numpytest.DataSetDir)
 
     cphvbnumpy.handle_array(A)
     cphvbnumpy.handle_array(B)
     result = jacobi(A,B)
 
-    if not dnumpytest.array_equal(C,result):
+    if not numpytest.array_equal(C,result):
         raise Exception("Uncorrect result vector\n")
 
 if __name__ == "__main__":

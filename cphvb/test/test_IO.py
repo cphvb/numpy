@@ -1,5 +1,5 @@
 import numpy as np
-import dnumpytest
+import numpytest
 import random
 import subprocess
 import cphvbnumpy
@@ -13,13 +13,13 @@ def run():
 
     max_ndim = 6
     for i in xrange(1,max_ndim+1):
-        src = dnumpytest.random_list(random.sample(xrange(1, 10),i))
+        src = numpytest.random_list(random.sample(xrange(1, 10),i))
         A = np.array(src, dtype=float, dist=True)
         fname = "distnumpt_test_matrix.npy"
         np.save(fname,A)
         B = np.load(fname)
 
-        if not dnumpytest.array_equal(A,B):
+        if not numpytest.array_equal(A,B):
             subprocess.check_call(('rm %s'%fname), shell=True)
             raise Exception("Uncorrect result array\n")
         subprocess.check_call(('rm %s'%fname), shell=True)

@@ -1,5 +1,5 @@
 import numpy as np
-import dnumpytest
+import numpytest
 
 def compute_targets(base, targets):
     b1 = base[:,np.newaxis,:]
@@ -17,11 +17,11 @@ def kNN(src, dist):
 def run():
     db_length = 100
     ndims = 64
-    src = dnumpytest.random_list((db_length, ndims))
+    src = numpytest.random_list((db_length, ndims))
     Seq = kNN(src, False)
     Par = kNN(src, True)
 
-    if not dnumpytest.array_equal(Seq,Par):
+    if not numpytest.array_equal(Seq,Par):
         raise Exception("Uncorrect result matrix\n")
 
 if __name__ == "__main__":

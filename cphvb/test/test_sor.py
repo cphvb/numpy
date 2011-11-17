@@ -1,5 +1,5 @@
 import numpy as np
-import dnumpytest
+import numpytest
 
 def SOR(H,W,Dist):
     if W%2 > 0 or H%2 > 0:
@@ -89,7 +89,7 @@ def run():
     Seq = SOR(10,10,False)
     Par = SOR(10,10,True)
 
-    if not dnumpytest.array_equal(Seq,Par):
+    if not numpytest.array_equal(Seq,Par):
         raise Exception("Uncorrect result matrix\n")
 
 if __name__ == "__main__":

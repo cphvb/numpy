@@ -1,6 +1,6 @@
 import numpy as np
 import random
-import dnumpytest
+import numpytest
 import cphvbnumpy
 
 def gameoflife(W,H,ITER,DIST,random_state):
@@ -60,7 +60,7 @@ def run():
     random_state = random.getstate()
     Seq = gameoflife(100,100,5,False,random_state)
     Par = gameoflife(100,100,5,True,random_state)
-    if not dnumpytest.array_equal(Seq,Par):
+    if not numpytest.array_equal(Seq,Par):
         raise Exception("Uncorrect result matrix\n")
 
 if __name__ == "__main__":
