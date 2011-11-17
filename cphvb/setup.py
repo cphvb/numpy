@@ -24,7 +24,7 @@ from os.path import join
 import os
 
 def build(build_path):
-    cphvb_install_dir = join('..','..','..','..')#Default location
+    cphvb_install_dir = join('..','..')#Default location
     try:
         cphvb_install_dir = os.path.abspath(os.environ['CPHVB_INSTALL_DIR'])
     except KeyError:
