@@ -38,8 +38,6 @@ PyCphVB_NewBaseArray(PyArrayObject *ary)
     cphvb_error err;
     cphvb_type dtype = type_py2cph[PyArray_TYPE(ary)];
 
-    printf("PyCphVB_NewBaseArray - type: %s\n",cphvb_type_text(dtype));
-
     if(dtype == CPHVB_UNKNOWN)
     {
         PyErr_SetString(PyExc_RuntimeError,
@@ -99,38 +97,44 @@ PyCphVB_NewViewArray(PyArrayObject *ary)
     cphvb_error err;
     cphvb_type dtype = type_py2cph[PyArray_TYPE(ary)];
     cphvb_intp offset;
-    cphvb_intp strides[CPHVB_MAX_NO_OPERANDS];
+    cphvb_intp strides[CPHVB_MAXDIM];
     char *data = PyArray_BYTES(ary);
     PyArrayObject *base = (PyArrayObject *) ary->base;
-    printf("PyCphVB_NewViewArray\n");
 
-    if(base == NULL)
+    if(ary->base == NULL)
     {
         PyErr_SetString(PyExc_RuntimeError,
                         "PyCphVB_NewViewArray - the PyArrayObject "
                         "must have a base.\n");
         return -1;
     }
+    if(!PyArray_CheckExact(ary->base))
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "PyCphVB_NewViewArray - the base must be of "
+                        "type PyArrayObject.\n");
+        return -1;    
+	}	
     if(PyCphVB_ARRAY(base) == NULL)
     {
         PyErr_SetString(PyExc_RuntimeError,
                         "PyCphVB_NewViewArray - the base must "
                         "have an associated cphvb_array.\n");
         return -1;
-    }
+    }   
     if(dtype == CPHVB_UNKNOWN)
     {
         PyErr_SetString(PyExc_RuntimeError,
                         "cphVB does not support the datatype\n");
         return -1;
-    }
+    }    
     if(PyArray_TYPE(ary) != PyArray_TYPE(base))
     {
         PyErr_SetString(PyExc_RuntimeError,
                         "PyCphVB_NewViewArray - the type of the "
                         "view and base must be identical.\n");
         return -1;
-    }
+    }    
     if(base->mprotected_start > ((cphvb_intp) data) ||
        base->mprotected_end <= ((cphvb_intp) data))
     {
@@ -152,7 +156,6 @@ PyCphVB_NewViewArray(PyArrayObject *ary)
         strides[i] = PyArray_STRIDE(ary,i) / PyArray_ITEMSIZE(ary);
         assert(PyArray_STRIDE(ary,i) % PyArray_ITEMSIZE(ary) == 0);
     }
-
     //Tell the VEM.
     err = vem_create_array(PyCphVB_ARRAY(base),
                            dtype, PyArray_NDIM(ary), offset,
@@ -177,7 +180,6 @@ PyCphVB_DelViewArray(PyArrayObject *array)
 
     if(PyCphVB_ARRAY(array) != NULL)
     {
-        printf("PyCphVB_DelViewArray - deleting cphVB handled array\n");
         cphvb_instruction inst;
         inst.opcode = CPHVB_DESTROY;
         inst.operand[0] = PyCphVB_ARRAY(array);

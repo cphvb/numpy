@@ -32,7 +32,6 @@ PyCphVB_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
     int i;
     cphvb_instruction inst;
     cphvb_error err;
-    printf("PyCphVB_Ufunc: %s\n", cphvb_opcode_text(ufunc->opcode));
 
     if(ufunc->opcode == CPHVB_NONE)
         return 1;//opcode not supported.

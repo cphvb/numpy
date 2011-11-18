@@ -115,8 +115,10 @@ sighandler(int signal_number, siginfo_t *info, void *context)
         cphvb_instruction inst;
         cphvb_intp size = PyArray_NBYTES(ary);
         cphvb_array *a = PyCphVB_ARRAY(ary);
+        /*
         printf("Warning - un-distributing array(%p) because of "
                "direct data access(%p). size: %ld\n", a, info->si_addr, size);
+        */
 
         //Tell the VEM to syncronize the data.
         inst.opcode = CPHVB_SYNC;
