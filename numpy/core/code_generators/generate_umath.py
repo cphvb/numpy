@@ -278,7 +278,7 @@ defdict = {#CPHVB added a opcore for each ufunc.
           TD(O, f='PyNumber_TrueDivide'),
           ),
 'conjugate' :
-    Ufunc('CPHVB_CONJ',1, 1, None,
+    Ufunc('CPHVB_NONE',1, 1, None,
           docstrings.get('numpy.core.umath.conjugate'),
           TD(ints+flts+cmplx),
           TD(P, f='conjugate'),
@@ -653,17 +653,17 @@ defdict = {#CPHVB added a opcore for each ufunc.
           TD(P, f='hypot'),
           ),
 'isnan' :
-    Ufunc('CPHVB_ISNAN',1, 1, None,
+    Ufunc('CPHVB_NONE',1, 1, None,
           docstrings.get('numpy.core.umath.isnan'),
           TD(inexact, out='?'),
           ),
 'isinf' :
-    Ufunc('CPHVB_ISINF',1, 1, None,
+    Ufunc('CPHVB_NONE',1, 1, None,
           docstrings.get('numpy.core.umath.isinf'),
           TD(inexact, out='?'),
           ),
 'isfinite' :
-    Ufunc('CPHVB_ISFINITE',1, 1, None,
+    Ufunc('CPHVB_NONE',1, 1, None,
           docstrings.get('numpy.core.umath.isfinite'),
           TD(inexact, out='?'),
           ),
@@ -688,7 +688,7 @@ defdict = {#CPHVB added a opcore for each ufunc.
           TD(flts),
           ),
 'modf' :
-    Ufunc('CPHVB_MODF',1, 2, None,
+    Ufunc('CPHVB_NONE',1, 2, None,
           docstrings.get('numpy.core.umath.modf'),
           TD(flts),
           ),
