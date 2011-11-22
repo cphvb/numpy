@@ -80,7 +80,6 @@ PyCphVB_NewBaseArray(PyArrayObject *ary)
     err = vem_create_array(NULL, dtype, ndims, 0, shape,
                            stride, 0, (cphvb_constant)0L,
                            &PyCphVB_ARRAY(ary));
-    assert(PyCphVB_ARRAY(ary) != NULL);
     return err;
 } /* PyCphVB_NewBaseArray */
 
@@ -113,28 +112,28 @@ PyCphVB_NewViewArray(PyArrayObject *ary)
         PyErr_SetString(PyExc_RuntimeError,
                         "PyCphVB_NewViewArray - the base must be of "
                         "type PyArrayObject.\n");
-        return -1;    
-	}	
+        return -1;
+    }
     if(PyCphVB_ARRAY(base) == NULL)
     {
         PyErr_SetString(PyExc_RuntimeError,
                         "PyCphVB_NewViewArray - the base must "
                         "have an associated cphvb_array.\n");
         return -1;
-    }   
+    }
     if(dtype == CPHVB_UNKNOWN)
     {
         PyErr_SetString(PyExc_RuntimeError,
                         "cphVB does not support the datatype\n");
         return -1;
-    }    
+    }
     if(PyArray_TYPE(ary) != PyArray_TYPE(base))
     {
         PyErr_SetString(PyExc_RuntimeError,
                         "PyCphVB_NewViewArray - the type of the "
                         "view and base must be identical.\n");
         return -1;
-    }    
+    }
     if(base->mprotected_start > ((cphvb_intp) data) ||
        base->mprotected_end <= ((cphvb_intp) data))
     {
@@ -250,7 +249,13 @@ PyCphVB_HandleArray(PyArrayObject *array, int transfer_data)
 
     if(a == NULL)//The base array has never been handled by cphVB before.
     {
-        PyCphVB_NewBaseArray(array);
+        err = PyCphVB_NewBaseArray(array);
+        if(err != CPHVB_SUCCESS)
+        {
+            fprintf(stderr, "PyCphVB_HandleArray - fatal error: %s.\n",
+                    cphvb_error_text(err));
+            exit(err);
+        }
         a = PyCphVB_ARRAY(array);
     }
     else if(transfer_data)
