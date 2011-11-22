@@ -23,9 +23,12 @@ def jacobi(A, B, tol=0.005):
         divide(tmp1, tmp2, tmp1)
         hnew = h + tmp1
         subtract(hnew,h,tmp2)
-        divide(tmp2,h,tmp1)
-        absolute(tmp1,tmp1)
-        dmax = maximum.reduce(tmp1)
+        if n != 1:
+            divide(tmp2,h,tmp1)
+            absolute(tmp1,tmp1)
+            dmax = maximum.reduce(tmp1)
+        else:
+            dmax = 1
         h = hnew
     return h
 
