@@ -29,9 +29,7 @@ def build(build_path):
         cphvb_install_dir = os.path.abspath(os.environ['CPHVB_INSTALL_DIR'])
     except KeyError:
         pass
-    cphvb_install_dir = join(cphvb_install_dir, 'include')
 
-    print "build_path: ", build_path
     setup(name='cphVB NumPy Bridge',
           version='1.0',
           ext_modules=[Extension(name='cphvbnumpymodule',
@@ -40,9 +38,9 @@ def build(build_path):
                                                join('cphvb','private'),
                                                join('numpy','core','include'),
                                                join(build_path, 'numpy','core','include','numpy'),
-                                               cphvb_install_dir,],
+                                               join(cphvb_install_dir, 'include'),],
                                  extra_compile_args=[],
-                                 extra_link_args=['-lcphvb'],
+                                 extra_link_args=['-L%s'%join(cphvb_install_dir,'core'), '-lcphvb'],
                                  depends=[join('cphvb','src','helpers.c'),
                                           join('cphvb','src','helpers.h'),
                                           join('cphvb','src','array_database.c'),
