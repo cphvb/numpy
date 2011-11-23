@@ -46,7 +46,7 @@ void vem_if_init(void)
     vem_shutdown = vem_component->shutdown;
     vem_create_array = vem_component->create_array;
 
-    err = vem_init(NULL, NULL, NULL, NULL, vem_component);
+    err = vem_init(vem_component);
     if(err)
     {
         fprintf(stderr, "Error in vem_init()\n");
