@@ -30,7 +30,6 @@ cphvb_init vem_init;
 cphvb_execute vem_execute;
 cphvb_shutdown vem_shutdown;
 cphvb_create_array vem_create_array;
-cphvb_instruction_check vem_instruction_check;
 cphvb_com *self_component, *vem_component;
 
 /*
