@@ -65,9 +65,12 @@ extern "C" {
 #define PyCphVB_BaseArray_RETURN PyArrayObject *
 #define PyCphVB_BaseArray_PROTO (PyArrayObject *array)
 
+#define PyCphVB_Reduce_NUM 10
+#define PyCphVB_Reduce_RETURN int
+#define PyCphVB_Reduce_PROTO (PyUFuncObject *ufunc, PyArrayObject *in, PyArrayObject *out, int axis)
 
 /* Total number of C API pointers */
-#define cphVB_API_pointers 10
+#define cphVB_API_pointers 11
 
 
 #ifdef CPHVBNUMPY_MODULE
@@ -83,6 +86,7 @@ static PyCphVB_MfreeArray_RETURN   PyCphVB_MfreeArray   PyCphVB_MfreeArray_PROTO
 static PyCphVB_NewViewArray_RETURN PyCphVB_NewViewArray PyCphVB_NewViewArray_PROTO;
 static PyCphVB_Ufunc_RETURN        PyCphVB_Ufunc        PyCphVB_Ufunc_PROTO;
 static PyCphVB_BaseArray_RETURN    PyCphVB_BaseArray    PyCphVB_BaseArray_PROTO;
+static PyCphVB_Reduce_RETURN       PyCphVB_Reduce   PyCphVB_Reduce_PROTO;
 
 
 #else
@@ -119,6 +123,10 @@ static void **cphVB_API;
 
 #define PyCphVB_BaseArray \
  (*(PyCphVB_BaseArray_RETURN (*)PyCphVB_BaseArray_PROTO) cphVB_API[PyCphVB_BaseArray_NUM])
+
+#define PyCphVB_Reduce \
+ (*(PyCphVB_Reduce_RETURN (*)PyCphVB_Reduce_PROTO) cphVB_API[PyCphVB_Reduce_NUM])
+
 
 /* Return -1 and set exception on error, 0 on success. */
 static int

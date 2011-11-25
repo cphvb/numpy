@@ -17,38 +17,37 @@
  * along with DistNumPy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VEM_INTERFACE_H
-#define VEM_INTERFACE_H
+#ifndef REDUCE_H
+#define REDUCE_H
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <cphvb.h>
-
-//Function pointers that makes up the VEM interface.
-cphvb_init vem_init;
-cphvb_execute vem_execute;
-cphvb_shutdown vem_shutdown;
-cphvb_create_array vem_create_array;
-cphvb_reg_func vem_reg_func;
-cphvb_com *self_component, *vem_component;
+/*
+ *===================================================================
+ * Initiate PyCphVB_Reduce().
+ * @return -1 and set exception on error, 0 on success.
+ */
+static int
+reduce_init(void);
 
 /*
  *===================================================================
- * Initiate the VEM interface.
+ * Execute an reduce. The function do nothing when the opcode and/or
+ * type is not supported.
+ * @ufunc  The ufunc object to reduce with.
+ * @in     Input Array.
+ * @put    Output Array.
+ * @axis   The Axis to reduce.
+ * @return -1 and set exception on error, 0 on success, 1 when doing
+ *         nothing.
  */
-void vem_if_init(void);
-
-/*
- *===================================================================
- * Finalize the VEM interface.
- */
-void vem_if_finalize(void);
-
-
+static int
+PyCphVB_Reduce(PyUFuncObject *ufunc, PyArrayObject *in,
+               PyArrayObject *out, int axis);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* !defined(VEM_INTERFACE_H) */
+#endif /* !defined(REDUCE_H) */

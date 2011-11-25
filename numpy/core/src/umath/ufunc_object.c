@@ -2922,6 +2922,8 @@ PyUFunc_ReductionOp(PyUFuncObject *self, PyArrayObject *arr,
     npy_uint32 op_flags[2];
     int i, idim, ndim, otype_final;
     int needs_api, need_outer_iterator;
+    /* CPHVB */
+    int want_cphvb = 0;
 
     NpyIter *iter = NULL, *iter_inner = NULL;
 
@@ -3178,6 +3180,33 @@ PyUFunc_ReductionOp(PyUFuncObject *self, PyArrayObject *arr,
         if (iter_inner == NULL) {
             goto fail;
         }
+    }
+
+    /* CPHVB */
+    if(operation == UFUNC_REDUCE)
+    {
+        int err = 1;
+        //Check if one of the arrays wants to handled by cphvb.
+        for(i=0; i<2; ++i)
+        {
+            if(op[i] != NULL)
+            {
+                PyArrayObject *base = PyCphVB_BaseArray(op[i]);
+                PyErr_Clear();
+                if(base != NULL && PyCphVB_ARRAY(base) != NULL)
+                {
+                    want_cphvb = 1;
+                    break;
+                }
+            }
+        }
+        if (want_cphvb)
+            err = PyCphVB_Reduce(self, op[1], op[0], axis);
+        if(err == 0)
+            goto finish;
+        else if(err == -1)
+            goto fail;
+        //On err == 1 we simply continue.
     }
 
     if (iter && NpyIter_GetIterSize(iter) != 0) {

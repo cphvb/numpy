@@ -31,11 +31,13 @@
 #include "arraydata.h"
 #include "batch.h"
 #include "ufunc.h"
+#include "reduce.h"
 #include "arrayobject.c"
 #include "vem_interface.c"
 #include "arraydata.c"
 #include "batch.c"
 #include "ufunc.c"
+#include "reduce.c"
 
 /*
  * ===================================================================
@@ -50,6 +52,9 @@ PyCphVB_Init(void)
 
     //Init the Array Data Protection.
     arydat_init();
+
+    //Initiate the reduce function.
+    reduce_init();
 
     return 0;
 } /* PyCphVB_Init */
@@ -142,6 +147,7 @@ initcphvbnumpy(void)
     cphVB_API[PyCphVB_NewViewArray_NUM] = (void *)PyCphVB_NewViewArray;
     cphVB_API[PyCphVB_Ufunc_NUM] = (void *)PyCphVB_Ufunc;
     cphVB_API[PyCphVB_BaseArray_NUM] = (void *)PyCphVB_BaseArray;
+    cphVB_API[PyCphVB_Reduce_NUM] = (void *)PyCphVB_Reduce;
 
     /* Create a CObject containing the API pointer array's address */
     c_api_object = PyCObject_FromVoidPtr((void *)cphVB_API, NULL);
