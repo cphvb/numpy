@@ -17,18 +17,9 @@
  * along with DistNumPy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-static cphvb_intp reduce_id;
+#include <cphvb.h>
 
-//The type of the user-defined reduce function
-typedef struct
-{
-    //User-defined function header with two operands.
-    CPHVB_USER_FUNC_HEADER(2)
-    //The Axis to reduce
-    cphvb_error   axis;
-    //The opcode to reduce with
-    cphvb_opcode  opcode;
-} reduce_type;
+static cphvb_intp reduce_id;
 
 /*
  *===================================================================
@@ -39,7 +30,7 @@ static int
 reduce_init(void)
 {
     reduce_id = 0;
-    cphvb_error err = vem_reg_func("reduce", "reduce", &reduce_id);
+    cphvb_error err = vem_reg_func(NULL, "cphvb_reduce", &reduce_id);
     if(err != CPHVB_SUCCESS)
     {
         fprintf(stderr, "Fatal error in the initialization of the user"
@@ -53,7 +44,6 @@ reduce_init(void)
                         " (%ld).\n", reduce_id);
         exit(err);
     }
-
     return 0;
 }
 
@@ -73,7 +63,7 @@ PyCphVB_Reduce(PyUFuncObject *ufunc, PyArrayObject *in,
                PyArrayObject *out, int axis)
 {
     cphvb_instruction inst;
-    reduce_type *rinst;
+    cphvb_reduce_type *rinst;
 
     if(ufunc->opcode == CPHVB_NONE)
         return 1;//opcode not supported.
@@ -87,7 +77,7 @@ PyCphVB_Reduce(PyUFuncObject *ufunc, PyArrayObject *in,
     }
 
     //Allocate the user-defined function.
-    rinst = malloc(sizeof(reduce_type));
+    rinst = malloc(sizeof(cphvb_reduce_type));
     if(rinst == NULL)
     {
         PyErr_NoMemory();
@@ -98,7 +88,7 @@ PyCphVB_Reduce(PyUFuncObject *ufunc, PyArrayObject *in,
     rinst->id          = reduce_id;
     rinst->nout        = 1;
     rinst->nin         = 1;
-    rinst->struct_size = sizeof(reduce_type);
+    rinst->struct_size = sizeof(cphvb_reduce_type);
     rinst->operand[0]  = PyCphVB_ARRAY(out);
     rinst->operand[1]  = PyCphVB_ARRAY(in);
     rinst->opcode      = ufunc->opcode;
@@ -108,7 +98,7 @@ PyCphVB_Reduce(PyUFuncObject *ufunc, PyArrayObject *in,
 
     batch_schedule(&inst);
 
-    return 1;
+    return 0;
 }
 
 
