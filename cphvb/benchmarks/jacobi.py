@@ -12,24 +12,25 @@ def jacobi(A, B, tol=0.005, forcedIter=0):
        tol = tolerance for dh/h
        init_val = array of initial values to use in the solver
     '''
-    cphvb(A)
-    cphvb(B)
     h = np.zeros(np.shape(B), float)
-    cphvb(h)
     dmax = 1.0
     n = 0
     tmp0 = np.empty(np.shape(A), float)
-    cphvb(tmp0)
     tmp1 = np.empty(np.shape(B), float)
-    cphvb(tmp1)
     AD = np.diagonal(A)
+    cphvb(A)
+    cphvb(B)
+    cphvb(h)
+    cphvb(tmp0)
+    cphvb(tmp1)
+    cphvb(AD)
+    cphvbnumpy.flush()
     t1 = time.time()
     while (forcedIter and forcedIter > n) or \
           (forcedIter == 0 and dmax > tol):
         n += 1
         np.multiply(A,h,tmp0)
-        #np.add.reduce(tmp0,1,out=tmp1)
-        #cphvb(tmp1)
+        np.add.reduce(tmp0,1,out=tmp1)
         tmp2 = AD
         np.subtract(B, tmp1, tmp1)
         np.divide(tmp1, tmp2, tmp1)
@@ -37,10 +38,10 @@ def jacobi(A, B, tol=0.005, forcedIter=0):
         np.subtract(hnew,h,tmp2)
         np.divide(tmp2,h,tmp1)
         np.absolute(tmp1,tmp1)
-        #dmax = np.maximum.reduce(tmp1)
-        dmax = 0
+        dmax = np.maximum.reduce(tmp1)
         h = hnew
 
+    cphvbnumpy.flush()
     t2 = time.time()
     print 'Iter: ', n, ' size:', np.shape(A), " time:", t2-t1
 
