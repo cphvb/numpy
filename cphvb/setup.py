@@ -52,6 +52,8 @@ def build(build_path):
                                           join('cphvb','src','types.h'),
                                           join('cphvb','src','ufunc.c'),
                                           join('cphvb','src','ufunc.h'),
+                                          join('cphvb','src','copyinto.c'),
+                                          join('cphvb','src','copyinto.h'),
                                           join('cphvb','src','vem_interface.c'),
                                           join('cphvb','src','vem_interface.h')]
                                  )],

@@ -32,12 +32,14 @@
 #include "batch.h"
 #include "ufunc.h"
 #include "reduce.h"
+#include "copyinto.h"
 #include "arrayobject.c"
 #include "vem_interface.c"
 #include "arraydata.c"
 #include "batch.c"
 #include "ufunc.c"
 #include "reduce.c"
+#include "copyinto.c"
 
 /*
  * ===================================================================
@@ -148,6 +150,7 @@ initcphvbnumpy(void)
     cphVB_API[PyCphVB_Ufunc_NUM] = (void *)PyCphVB_Ufunc;
     cphVB_API[PyCphVB_BaseArray_NUM] = (void *)PyCphVB_BaseArray;
     cphVB_API[PyCphVB_Reduce_NUM] = (void *)PyCphVB_Reduce;
+    cphVB_API[PyCphVB_CopyInto_NUM] = (void *)PyCphVB_CopyInto;
 
     /* Create a CObject containing the API pointer array's address */
     c_api_object = PyCObject_FromVoidPtr((void *)cphVB_API, NULL);

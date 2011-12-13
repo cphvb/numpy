@@ -2681,6 +2681,21 @@ PyArray_CopyInto(PyArrayObject *dst, PyArrayObject *src)
         return -1;
     }
 
+    /* CPHVB */
+    //Check if one of the operands wants to be handled by cphVB.
+    PyArrayObject *dst_base = PyCphVB_BaseArray(dst);
+    PyArrayObject *src_base = PyCphVB_BaseArray(src);
+    PyErr_Clear();
+    if((dst_base != NULL && PyCphVB_ARRAY(dst_base) != NULL) ||
+       (src_base != NULL && PyCphVB_ARRAY(src_base) != NULL))
+    {
+        int cphret = PyCphVB_CopyInto(dst, src);
+        if(cphret != 1)//PyCphVB_Ufunc() was performed.
+            return cphret;
+        //If not, we simply continue.
+    }
+
+
     if (PyArray_NDIM(dst) >= PyArray_NDIM(src) &&
                             PyArray_TRIVIALLY_ITERABLE_PAIR(dst, src)) {
         char *dst_data, *src_data;
