@@ -98,7 +98,6 @@ PyCphVB_NewViewArray(PyArrayObject *ary)
     cphvb_intp offset;
     cphvb_intp strides[CPHVB_MAXDIM];
     char *data = PyArray_BYTES(ary);
-    PyArrayObject *base = (PyArrayObject *) ary->base;
 
     if(ary->base == NULL)
     {
@@ -114,6 +113,9 @@ PyCphVB_NewViewArray(PyArrayObject *ary)
                         "type PyArrayObject.\n");
         return -1;
     }
+
+    PyArrayObject *base = PyCphVB_BaseArray((PyArrayObject *) ary);
+
     if(PyCphVB_ARRAY(base) == NULL)
     {
         PyErr_SetString(PyExc_RuntimeError,
@@ -134,6 +136,7 @@ PyCphVB_NewViewArray(PyArrayObject *ary)
                         "view and base must be identical.\n");
         return -1;
     }
+
     if(base->mprotected_start > data || base->mprotected_end <= data)
     {
         PyErr_Format(PyExc_RuntimeError, "PyCphVB_NewViewArray - the "
@@ -141,6 +144,7 @@ PyCphVB_NewViewArray(PyArrayObject *ary)
                      "its base array (%p to %p).\n", data,
                      base->mprotected_start,
                      base->mprotected_end);
+        PyErr_Print();
         return -1;
     }
     //Compute offset in elements from the start of the base array.
@@ -223,7 +227,7 @@ PyCphVB_HandleArray(PyArrayObject *array, int transfer_data)
     if(array->base != NULL && PyArray_CheckExact(array->base) &&
        !PyArray_CHKFLAGS(array, NPY_UPDATEIFCOPY))
     {
-        base = (PyArrayObject *) array->base;
+        base = PyCphVB_BaseArray((PyArrayObject *) array);
         if(PyCphVB_HandleArray(base, transfer_data) == -1)
             return -1;
     }
@@ -318,7 +322,7 @@ PyCphVB_BaseArray(PyArrayObject *array)
     if(PyArray_CheckExact(array->base) &&
        !PyArray_CHKFLAGS(array, NPY_UPDATEIFCOPY))
     {
-        return (PyArrayObject *) array->base;
+        return PyCphVB_BaseArray((PyArrayObject *) array->base);
     }
 
     PyErr_SetString(PyExc_RuntimeError, "PyCphVB_BaseArray - the "
