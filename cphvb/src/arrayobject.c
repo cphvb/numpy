@@ -279,7 +279,6 @@ PyCphVB_HandleArray(PyArrayObject *array, int transfer_data)
         }
         //We need to move data from NumPy to cphVB address space.
         memcpy(a->data, array->data, size);
-        memset(array->data, 0, size); //DEBUG;
     }
 
     //Proctect the NumPy array data.
