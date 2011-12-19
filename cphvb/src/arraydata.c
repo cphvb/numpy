@@ -54,8 +54,8 @@ PyCphVB_MallocArray(PyArrayObject *ary, cphvb_intp size)
     //Update the ary data pointer.
     PyArray_BYTES(ary) = addr;
     //We also need to save the start and end address.
-    ary->mprotected_start = (npy_uintp)addr;
-    ary->mprotected_end = ((npy_uintp)addr) + size;
+    ary->mprotected_start = addr;
+    ary->mprotected_end = ary->mprotected_start + size;
 
     //Save the number of bytes allocated.
     ary->data_allocated = size;
@@ -98,7 +98,7 @@ sighandler(int signal_number, siginfo_t *info, void *context)
     PyArrayObject *ary = ary_root;
     while(ary != NULL)
     {
-        npy_uintp addr = (npy_uintp)info->si_addr;
+        char* addr = info->si_addr;
         if(ary->mprotected_start <= addr && addr < ary->mprotected_end)
            break;
 
