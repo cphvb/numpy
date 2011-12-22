@@ -70,6 +70,13 @@ PyCphVB_Random(PyArrayObject *ary)
         return -1;
     }
 
+    if(ary->base != NULL || !PyArray_CHKFLAGS(ary, NPY_OWNDATA))
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "PyCphVB_Random does not support views.\n");
+        return -1;
+    }
+
     //Set the instruction
     rinst->id          = random_id;
     rinst->nout        = 1;
