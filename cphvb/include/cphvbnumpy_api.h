@@ -73,8 +73,13 @@ extern "C" {
 #define PyCphVB_CopyInto_RETURN int
 #define PyCphVB_CopyInto_PROTO (PyArrayObject *dst, PyArrayObject *src)
 
+#define PyCphVB_Random_NUM 12
+#define PyCphVB_Random_RETURN int
+#define PyCphVB_Random_PROTO (PyArrayObject *ary)
+
+
 /* Total number of C API pointers */
-#define cphVB_API_pointers 12
+#define cphVB_API_pointers 13
 
 
 #ifdef CPHVBNUMPY_MODULE
@@ -92,6 +97,7 @@ static PyCphVB_Ufunc_RETURN        PyCphVB_Ufunc        PyCphVB_Ufunc_PROTO;
 static PyCphVB_BaseArray_RETURN    PyCphVB_BaseArray    PyCphVB_BaseArray_PROTO;
 static PyCphVB_Reduce_RETURN       PyCphVB_Reduce       PyCphVB_Reduce_PROTO;
 static PyCphVB_CopyInto_RETURN     PyCphVB_CopyInto     PyCphVB_CopyInto_PROTO;
+static PyCphVB_Random_RETURN       PyCphVB_Random       PyCphVB_Random_PROTO;
 
 
 #else
@@ -134,6 +140,10 @@ static void **cphVB_API;
 
 #define PyCphVB_CopyInto \
  (*(PyCphVB_CopyInto_RETURN (*)PyCphVB_CopyInto_PROTO) cphVB_API[PyCphVB_CopyInto_NUM])
+
+#define PyCphVB_Random \
+ (*(PyCphVB_Random_RETURN (*)PyCphVB_Random_PROTO) cphVB_API[PyCphVB_Random_NUM])
+
 
 /* Return -1 and set exception on error, 0 on success. */
 static int

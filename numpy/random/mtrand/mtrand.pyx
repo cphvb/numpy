@@ -124,6 +124,8 @@ cdef extern from "initarray.h":
 import_array()
 
 import numpy as np
+#CPHVB
+import cphvbnumpy
 
 cdef object cont0_array(rk_state *state, rk_cont0 func, object size):
     cdef double *array_data
@@ -715,10 +717,10 @@ cdef class RandomState:
     def __reduce__(self):
         return (np.random.__RandomState_ctor, (), self.get_state())
 
-    # Basic distributions:
-    def random_sample(self, size=None):
+    # Basic distributions: #CPHVB
+    def random_sample(self, size=None, cphvb=False):
         """
-        random_sample(size=None)
+        random_sample(size=None, cphvb=False)
 
         Return random floats in the half-open interval [0.0, 1.0).
 
@@ -757,7 +759,13 @@ cdef class RandomState:
                [-1.23204345, -1.75224494]])
 
         """
-        return cont0_array(self.internal_state, rk_double, size)
+        #CPHVB
+        if not cphvb or size is None:
+            return cont0_array(self.internal_state, rk_double, size)
+        else:
+            array = <ndarray>np.empty(size, np.float64, dist=True)
+            cphvbnumpy.fill_random(array)
+            return array
 
     def tomaxint(self, size=None):
         """
@@ -2620,7 +2628,7 @@ cdef class RandomState:
 
         Plot Gaussian for comparison:
 
-        >>> g = (1/(scale * np.sqrt(2 * np.pi)) * 
+        >>> g = (1/(scale * np.sqrt(2 * np.pi)) *
         ...      np.exp( - (x - loc)**2 / (2 * scale**2) ))
         >>> plt.plot(x,g)
 

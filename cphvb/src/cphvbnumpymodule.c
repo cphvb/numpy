@@ -33,6 +33,7 @@
 #include "ufunc.h"
 #include "reduce.h"
 #include "copyinto.h"
+#include "random.h"
 #include "arrayobject.c"
 #include "vem_interface.c"
 #include "arraydata.c"
@@ -40,6 +41,7 @@
 #include "ufunc.c"
 #include "reduce.c"
 #include "copyinto.c"
+#include "random.c"
 
 /*
  * ===================================================================
@@ -58,6 +60,9 @@ PyCphVB_Init(void)
     //Initiate the reduce function.
     reduce_init();
 
+    //Initiate the random function.
+    random_init();
+
     return 0;
 } /* PyCphVB_Init */
 
@@ -69,9 +74,6 @@ static void
 PyCphVB_Exit(void)
 {
     batch_flush();
-
-    //De-allocate the memory pool.
-//    mem_pool_finalize();
 
     //Finalize the Array Data Protection.
     arydat_finalize();
@@ -118,12 +120,38 @@ _handle_array(PyObject *m, PyObject *args)
     Py_RETURN_NONE;
 } /* _handle_array */
 
+/*
+ * ===================================================================
+ * Python wrapper for PyCphVB_HandleArray.
+ */
+static PyObject *
+_fill_random(PyObject *m, PyObject *args)
+{
+    PyObject *obj = NULL;
+    if (!PyArg_ParseTuple(args, "O", &obj)) {
+        return NULL;
+    }
+    if(!PyArray_CheckExact(obj))
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Must be a NumPy array.");
+        return NULL;
+    }
+
+    if(PyCphVB_Random((PyArrayObject *) obj) != 0)
+        return NULL;
+
+    Py_RETURN_NONE;
+} /* _handle_array */
+
+
 
 static PyMethodDef cphVBMethods[] = {
     {"flush", _batch_flush, METH_VARARGS,
      "Executes all appending operations."},
     {"handle_array", _handle_array, METH_VARARGS,
      "Indicate that cphVB should handle the array."},
+    {"fill_random", _fill_random, METH_VARARGS,
+     "Fill the empty array with numpy.random.random()."},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
@@ -151,6 +179,7 @@ initcphvbnumpy(void)
     cphVB_API[PyCphVB_BaseArray_NUM] = (void *)PyCphVB_BaseArray;
     cphVB_API[PyCphVB_Reduce_NUM] = (void *)PyCphVB_Reduce;
     cphVB_API[PyCphVB_CopyInto_NUM] = (void *)PyCphVB_CopyInto;
+    cphVB_API[PyCphVB_Random_NUM] = (void *)PyCphVB_Random;
 
     /* Create a CObject containing the API pointer array's address */
     c_api_object = PyCObject_FromVoidPtr((void *)cphVB_API, NULL);
