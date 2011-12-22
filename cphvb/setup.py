@@ -49,6 +49,8 @@ def build(build_path):
                                           join('cphvb','src','batch.h'),
                                           join('cphvb','src','reduce.c'),
                                           join('cphvb','src','reduce.h'),
+                                          join('cphvb','src','random.c'),
+                                          join('cphvb','src','random.h'),
                                           join('cphvb','src','types.h'),
                                           join('cphvb','src','ufunc.c'),
                                           join('cphvb','src','ufunc.h'),

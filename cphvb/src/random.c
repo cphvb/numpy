@@ -29,13 +29,12 @@ static cphvb_intp random_id;
 static int
 random_init(void)
 {
-/*
-    reduce_id = 0;
+    random_id = 0;
     cphvb_error err = vem_reg_func(NULL, "cphvb_random", &random_id);
     if(err != CPHVB_SUCCESS)
     {
         fprintf(stderr, "Fatal error in the initialization of the user"
-            "-defined reduce operation: %s.\n", cphvb_error_text(err));
+            "-defined random operation: %s.\n", cphvb_error_text(err));
         exit(err);
     }
     if(random_id <= 0)
@@ -45,7 +44,6 @@ random_init(void)
                         " (%ld).\n", random_id);
         exit(err);
     }
-*/
     return 0;
 }
 
