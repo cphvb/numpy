@@ -6,6 +6,7 @@ import time
 import subprocess
 import os
 import getopt
+import random
 
 #If not available some test may be ignored.
 try:
@@ -80,6 +81,7 @@ if __name__ == "__main__":
     for o, a in opts:
         if o in ("-s", "--seed"):
             seed = int(a)
+            random.seed(seed)
         elif o in ("-f", "--file"):
             script_list.append(a)
         elif o in ("-e", "--exclude"):
