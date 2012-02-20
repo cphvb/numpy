@@ -8,7 +8,6 @@ def run():
         src = numpytest.random_list(random.sample(range(3, 10),i))
         Ad = np.array(src, dtype=float, dist=True)
         Af = np.array(src, dtype=float, dist=False)
-        print Ad.shape
         Ad[1:] = Ad[:-1]
         Af[1:] = Af[:-1]
         if not numpytest.array_equal(Ad,Af):
