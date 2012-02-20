@@ -27,8 +27,6 @@ def run():
         Df[1:] = Cf[:-1]
         Cd = Dd + Bd[np.newaxis,-1]
         Cf = Df + Bf[np.newaxis,-1]
-        Cd[1:] = Cd[:-1]
-        Cf[1:] = Cf[:-1]
         if not numpytest.array_equal(Cd,Cf):
             print "[PyTest] Test 1. Dim: ", i, ": Failed"
             raise Exception("Incorrect result array\n")
