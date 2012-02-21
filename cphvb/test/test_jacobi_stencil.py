@@ -1,11 +1,18 @@
 import numpy as np
 import numpytest
+import cphvbnumpy
 
 def jacobi_sencil(H,W,Dist):
-    full = np.zeros((H+2,W+2), dtype=np.double, dist=Dist)
-    work = np.zeros((H,W), dtype=np.double, dist=Dist)
-    diff = np.zeros((H,W), dtype=np.double, dist=Dist)
-    tmpdelta = np.zeros((H), dtype=np.double, dist=Dist)
+    full = np.zeros((H+2,W+2), dtype=np.double)
+    work = np.zeros((H,W), dtype=np.double)
+    diff = np.zeros((H,W), dtype=np.double)
+    tmpdelta = np.zeros((H), dtype=np.double)
+
+    if Dist:
+        cphvbnumpy.handle_array(full)
+        cphvbnumpy.handle_array(work)
+        cphvbnumpy.handle_array(diff)
+        cphvbnumpy.handle_array(tmpdelta)
 
     cells = full[1:-1, 1:-1]
     up    = full[1:-1, 0:-2]
@@ -37,8 +44,8 @@ def jacobi_sencil(H,W,Dist):
     return cells
 
 def run():
-    Seq = jacobi_sencil(5,5,False)
-    Par = jacobi_sencil(5,5,True)
+    Seq = jacobi_sencil(20,20,False)
+    Par = jacobi_sencil(20,20,True)
 
     if not numpytest.array_equal(Seq,Par):
         raise Exception("Uncorrect result matrix\n")

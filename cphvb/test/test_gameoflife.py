@@ -9,11 +9,18 @@ def gameoflife(W,H,ITER,DIST,random_state):
     LIVING_HIGH = 3
     ALIVE = 3
 
-    full      = np.zeros((W+2,H+2), dtype=np.long, dist=DIST)
-    dead      = np.zeros((W,H),     dtype=np.long, dist=DIST)
-    live      = np.zeros((W,H),     dtype=np.long, dist=DIST)
-    live2     = np.zeros((W,H),     dtype=np.long, dist=DIST)
-    neighbors = np.zeros((W,H),     dtype=np.long, dist=DIST)
+    full      = np.zeros((W+2,H+2), dtype=np.long)
+    dead      = np.zeros((W,H),     dtype=np.long)
+    live      = np.zeros((W,H),     dtype=np.long)
+    live2     = np.zeros((W,H),     dtype=np.long)
+    neighbors = np.zeros((W,H),     dtype=np.long)
+
+    if DIST:
+        cphvbnumpy.handle_array(full)
+        cphvbnumpy.handle_array(dead)
+        cphvbnumpy.handle_array(live)
+        cphvbnumpy.handle_array(live2)
+        cphvbnumpy.handle_array(neighbors)
 
     cells = full[1:W+1,1:H+1]
     ul = full[0:W, 0:H]
@@ -58,8 +65,8 @@ def gameoflife(W,H,ITER,DIST,random_state):
 
 def run():
     random_state = random.getstate()
-    Seq = gameoflife(100,100,5,False,random_state)
-    Par = gameoflife(100,100,5,True,random_state)
+    Seq = gameoflife(100,100,10,False,random_state)
+    Par = gameoflife(100,100,10,True,random_state)
     if not numpytest.array_equal(Seq,Par):
         raise Exception("Uncorrect result matrix\n")
 

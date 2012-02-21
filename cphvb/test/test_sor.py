@@ -1,13 +1,18 @@
 import numpy as np
 import numpytest
+import cphvbnumpy
 
 def SOR(H,W,Dist):
     if W%2 > 0 or H%2 > 0:
         raise Exception("Each dimension must have an even size.")
 
-    full = np.zeros((H+2,W+2), dtype=np.double, dist=Dist)
-    diff = np.zeros((H/2,W/2), dtype=np.double, dist=Dist)
-    tmpdelta = np.zeros((H/2), dtype=np.double, dist=Dist)
+    full = np.zeros((H+2,W+2), dtype=np.double)
+    diff = np.zeros((H/2,W/2), dtype=np.double)
+    tmpdelta = np.zeros((H/2), dtype=np.double)
+    if Dist:
+        cphvbnumpy.handle_array(full)
+        cphvbnumpy.handle_array(diff)
+        cphvbnumpy.handle_array(tmpdelta)
 
     cells  = full[1:-1, 1:-1]
     black1 = full[1:-1:2, 1:-1:2]
@@ -86,8 +91,8 @@ def SOR(H,W,Dist):
     return cells
 
 def run():
-    Seq = SOR(10,10,False)
-    Par = SOR(10,10,True)
+    Seq = SOR(20,20,False)
+    Par = SOR(20,20,True)
 
     if not numpytest.array_equal(Seq,Par):
         raise Exception("Uncorrect result matrix\n")
