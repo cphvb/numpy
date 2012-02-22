@@ -32,6 +32,7 @@ PyCphVB_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
     int i;
     cphvb_instruction inst;
     cphvb_error err;
+    int data_overlap = 0;
 
     if(ufunc->opcode == CPHVB_NONE)
         return 1;//opcode not supported.
@@ -118,9 +119,50 @@ PyCphVB_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
     }
     //Only execute the ufunc if the output is greater than zero.
     if(cphvb_nelements(inst.operand[0]->ndim,
-                       inst.operand[0]->shape) > 0)
+                       inst.operand[0]->shape) <= 0)
+        return 0;
+
+
+    //Check for data overlap.
+    {
+        cphvb_array *out = cphvb_base_array(inst.operand[0]);
+        for(i=ufunc->nout; i<ufunc->nargs; ++i)
+            if(out == cphvb_base_array(inst.operand[i]))
+            {
+                data_overlap = 1;
+                break;
+            }
+    }
+    err = 0;
+    if(data_overlap)
+    {
+        /* We will NOT use a temporary array.
+         * It would make sense but NumPy simply overwrite the previous
+         * element when computing from left to right.
+         * Therefore, we will let NumPy compute the Ufunc.
+
+        PyArrayObject *out = op[ufunc->nin];
+
+        //We need to use a temporary array
+        PyArrayObject *tmp = (PyArrayObject *) PyArray_NewLikeArray(out, NPY_KEEPORDER, NULL, 0);
+        if(tmp == NULL || PyCphVB_HandleArray(tmp, 0) != 0)
+            return -1;
+
+        //Lets schedule an instruction that writes to the tmp array.
+        inst.operand[0] = PyCphVB_ARRAY(tmp);
         batch_schedule(&inst);
 
-    return 0;
+        //Lets copy the output data back into the original output array.
+        err = PyCphVB_CopyInto(out,tmp);
+        Py_DECREF(tmp);
+        */
+        return 1;
+    }
+    else
+    {
+        batch_schedule(&inst);
+    }
+
+    return err;
 }/* PyCphVB_Ufunc */
 
