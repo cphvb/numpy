@@ -2690,7 +2690,7 @@ PyArray_CopyInto(PyArrayObject *dst, PyArrayObject *src)
        (src_base != NULL && PyCphVB_ARRAY(src_base) != NULL))
     {
         int cphret = PyCphVB_CopyInto(dst, src);
-        if(cphret != 1)//PyCphVB_Ufunc() was performed.
+        if(cphret != 1)//PyCphVB_CopyInto() was performed.
             return cphret;
         //If not, we simply continue.
     }
