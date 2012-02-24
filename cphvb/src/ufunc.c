@@ -124,14 +124,10 @@ PyCphVB_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
 
 
     //Check for data overlap.
+    for(i=ufunc->nout; i<ufunc->nargs; ++i)
     {
-        cphvb_array *out = cphvb_base_array(inst.operand[0]);
-        for(i=ufunc->nout; i<ufunc->nargs; ++i)
-            if(out == cphvb_base_array(inst.operand[i]))
-            {
-                data_overlap = 1;
-                break;
-            }
+        if(cphvb_array_conflict(inst.operand[0], inst.operand[i]))
+            data_overlap = 1;
     }
     err = 0;
     if(data_overlap)
