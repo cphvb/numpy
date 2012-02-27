@@ -1,4 +1,5 @@
 PYTHON?=python
+INSTALLDIR?=/opt/cphvb/
 
 all:
 	$(PYTHON) setup.py build
@@ -8,4 +9,4 @@ clean:
 
 install:
 	$(PYTHON) setup.py build
-	sudo $(PYTHON) setup.py install
+	sudo $(PYTHON) setup.py install --prefix $(INSTALLDIR)
