@@ -77,6 +77,10 @@ def is_npy_no_signal():
 def is_npy_no_smp():
     """Return True if the NPY_NO_SMP symbol must be defined in public
     header (when SMP support cannot be reliably enabled)."""
+
+    #CPHVB - Deactivate SMP support
+    return 1;
+
     # Python 2.3 causes a segfault when
     #  trying to re-acquire the thread-state
     #  which is done in error-handling
