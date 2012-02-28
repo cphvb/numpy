@@ -127,7 +127,7 @@ sighandler(int signal_number, siginfo_t *info, void *context)
         batch_flush();
 
         //Make sure that the memory is allocated.
-        err = cphvb_malloc_array_data(a);
+        err = cphvb_data_malloc(a);
         if(err != CPHVB_SUCCESS)
         {
             fprintf(stderr, "Error when allocating array (%p): %s\n",

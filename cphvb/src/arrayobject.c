@@ -275,7 +275,7 @@ PyCphVB_HandleArray(PyArrayObject *array, int transfer_data)
     if(transfer_data)
     {
         //Make sure that the memory is allocated.
-        err = cphvb_malloc_array_data(a);
+        err = cphvb_data_malloc(a);
         if(err != CPHVB_SUCCESS)
         {
             PyErr_Format(PyExc_RuntimeError,"Error when allocating "
