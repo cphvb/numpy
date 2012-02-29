@@ -135,7 +135,6 @@ sighandler(int signal_number, siginfo_t *info, void *context)
             exit(err);
         }
 
-/*
         //mremap does not work since a->data is not guaranteed to be
         //page aligned.
         if(mremap(a->data, size, size, MREMAP_FIXED|MREMAP_MAYMOVE,
@@ -147,22 +146,14 @@ sighandler(int signal_number, siginfo_t *info, void *context)
                            strerror(errsv));
             exit(errno);
         }
-*/
-        //Unproctect the NumPy array data.
-        //NB: this is not thread-safe and result in duplicated data.
-        if(mprotect(ary->data, size, PROT_READ|PROT_WRITE) == -1)
-        {
-            int errsv = errno;//mprotect() sets the errno.
-            fprintf(stderr,"Error - could not un-protect a data region."
-                           " Returned error code by mprotect: %s.\n",
-                           strerror(errsv));
-            exit(errno);
-        }
-        //Move data from CPHVB to NumPy space.
-        memcpy(ary->data, a->data, size);
+        //The cphvb data will have to be allocated again when
+        //PyCphVB_HandleArray() moves the data back again to the
+        //cphVB address space.
+        a->data = NULL;
 
         //The array is not handled by cphVB anymore.
         ary->cphvb_handled = 0;
+
     }
 }
 
