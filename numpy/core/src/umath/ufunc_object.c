@@ -1902,12 +1902,15 @@ iterator_loop(PyUFuncObject *self,
         if (op[i] == NULL) {
             op[i] = op_it[i];
             Py_INCREF(op[i]);
-            /* CPHVB */
-            //cphVB should handle the array but no transfer
-            //is necessary.
-            PyCphVB_HandleArray(op[i], 0);
-            //Any error will be handled in PyCphVB_Ufunc().
-            PyErr_Clear();
+
+            if(cphvb_want)/* CPHVB */
+            {
+                //cphVB should handle the array but no transfer
+                //is necessary.
+                PyCphVB_HandleArray(op[i], 0);
+                //Any error will be handled in PyCphVB_Ufunc().
+                PyErr_Clear();
+            }
         }
     }
 
