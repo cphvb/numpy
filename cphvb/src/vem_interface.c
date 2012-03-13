@@ -40,12 +40,12 @@ void vem_if_init(void)
         exit(-1);
     }
     vem_component = coms[0];
-    free(coms);
     vem_init = vem_component->init;
     vem_execute = vem_component->execute;
     vem_shutdown = vem_component->shutdown;
     vem_create_array = vem_component->create_array;
     vem_reg_func = vem_component->reg_func;
+    free(coms);
 
     err = vem_init(vem_component);
     if(err)
