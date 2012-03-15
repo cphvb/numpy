@@ -94,17 +94,8 @@ static void
 sighandler(int signal_number, siginfo_t *info, void *context)
 {
     cphvb_error err;
-    //Iterate through all base arrays.
-    PyArrayObject *ary = ary_root;
-    while(ary != NULL)
-    {
-        char* addr = info->si_addr;
-        if(ary->mprotected_start <= addr && addr < ary->mprotected_end)
-           break;
-
-        //Go to the next ary.
-        ary = ary->next;
-    }
+    //Get array base
+    PyArrayObject *ary = arraycollection_get(info->si_addr);
 
     if(ary == NULL)//Normal segfault.
     {
@@ -116,7 +107,7 @@ sighandler(int signal_number, siginfo_t *info, void *context)
         cphvb_intp size = PyArray_NBYTES(ary);
         cphvb_array *a = PyCphVB_ARRAY(ary);
         /*
-        printf("Warning - un-distributing array(%p) because of "
+        printf("Warning - un-handle array(%p) because of "
                "direct data access(%p). size: %ld\n", a, info->si_addr, size);
         */
 

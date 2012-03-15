@@ -25,8 +25,6 @@ extern "C" {
 
 #include "cphvbnumpy_types.h"
 
-PyArrayObject *ary_root = NULL;//The root of the base array collection.
-
 /*
  *===================================================================
  * Create a new base array and updates the PyArrayObject.

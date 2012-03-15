@@ -27,6 +27,7 @@
 //We include all .h and .c files.
 //NumPy distutil complains when having multiple module files.
 #include "arrayobject.h"
+#include "arraycollection.h"
 #include "vem_interface.h"
 #include "arraydata.h"
 #include "batch.h"
@@ -35,6 +36,7 @@
 #include "copyinto.h"
 #include "random.h"
 #include "arrayobject.c"
+#include "arraycollection.c"
 #include "vem_interface.c"
 #include "arraydata.c"
 #include "batch.c"

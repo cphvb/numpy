@@ -44,16 +44,8 @@ PyCphVB_NewBaseArray(PyArrayObject *ary)
                         "cphVB does not support the datatype\n");
         return -1;
     }
-
-    //Append the array to the base array collection.
-    ary->prev = NULL;
-    ary->next = ary_root;
-    ary_root = ary;
-    if(ary->next != NULL)
-    {
-        assert(ary->next->prev == NULL);
-        ary->next->prev = ary_root;
-    }
+    //Add the array to the base array collection.
+    arraycollection_add(ary);
 
     //cphVB is handling the array.
     ary->cphvb_handled = 1;
@@ -191,13 +183,9 @@ PyCphVB_DelViewArray(PyArrayObject *array)
 
         if(array->base == NULL)//It it a base array.
         {
+
             //Remove the array from the base array collection.
-            if(array->next != NULL)
-                array->next->prev = array->prev;
-            if(array->prev != NULL)
-                array->prev->next = array->next;
-            else
-                ary_root = array->next;
+            arraycollection_rm(array);
         }
     }
     return 0;
