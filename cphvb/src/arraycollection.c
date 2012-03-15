@@ -83,6 +83,9 @@ static void arraycollection_rm(PyArrayObject *ary)
     else
         arraycollection_root = ary->next;
     pthread_mutex_unlock(&arraycollection_mutex);
+
+    ary->next = NULL;//To easy debugging
+    ary->prev = NULL;
 }
 
 

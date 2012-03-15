@@ -44,11 +44,11 @@ PyCphVB_NewBaseArray(PyArrayObject *ary)
                         "cphVB does not support the datatype\n");
         return -1;
     }
-    //Add the array to the base array collection.
-    arraycollection_add(ary);
-
     //cphVB is handling the array.
     ary->cphvb_handled = 1;
+
+    //Add the array to the base array collection.
+    arraycollection_add(ary);
 
     //We handle scalars as 1-dim array with size 1.
     cphvb_intp ndims = PyArray_NDIM(ary);
@@ -175,7 +175,7 @@ PyCphVB_DelViewArray(PyArrayObject *array)
     if(PyCphVB_MfreeArray(array) == -1)
         return 0;
 
-    if(PyCphVB_ARRAY(array) != NULL)
+    if(PyCphVB_ARRAY(array) != NULL && array->cphvb_handled == 1)
     {
         cphvb_instruction inst;
         inst.opcode = CPHVB_DESTROY;
@@ -251,13 +251,21 @@ PyCphVB_HandleArray(PyArrayObject *array, int transfer_data)
         }
         a = PyCphVB_ARRAY(array);
     }
-    else if(transfer_data)
+    else
     {
-        //Tell the VEM to syncronize the data.
-        inst.opcode = CPHVB_SYNC;
-        inst.operand[0] = a;
-        batch_schedule(&inst);
-        batch_flush();
+        //The array is now handled by cphVB.
+        array->cphvb_handled = 1;
+        //Add the array to the base array collection.
+        arraycollection_add(array);
+
+        if(transfer_data)
+        {
+            //Tell the VEM to syncronize the data.
+            inst.opcode = CPHVB_SYNC;
+            inst.operand[0] = a;
+            batch_schedule(&inst);
+            batch_flush();
+        }
     }
 
     if(transfer_data)
@@ -284,8 +292,6 @@ PyCphVB_HandleArray(PyArrayObject *array, int transfer_data)
         return -1;
     }
 
-    //The array is now handled by cphVB.
-    array->cphvb_handled = 1;
     return 0;
 } /* PyCphVB_HandleArray */
 
@@ -331,8 +337,7 @@ PyCphVB_UnHandleArray(PyArrayObject *array)
         return -1;
     }
 
-    //mremap does not work since a->data is not guaranteed to be
-    //page aligned.
+    //Memory re-map from cphVB data to NumPy data.
     if(mremap(a->data, size, size, MREMAP_FIXED|MREMAP_MAYMOVE,
               base->data) == MAP_FAILED)
     {
@@ -349,6 +354,7 @@ PyCphVB_UnHandleArray(PyArrayObject *array)
 
     //The array is not handled by cphVB anymore.
     base->cphvb_handled = 0;
+    arraycollection_rm(base);
 
     return 0;
 
