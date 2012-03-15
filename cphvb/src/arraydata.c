@@ -90,7 +90,6 @@ PyCphVB_MfreeArray(PyArrayObject *ary)
 static void
 sighandler(int signal_number, siginfo_t *info, void *context)
 {
-    cphvb_error err;
     //Get array base
     PyArrayObject *ary = arraycollection_get(info->si_addr);
 
@@ -100,48 +99,17 @@ sighandler(int signal_number, siginfo_t *info, void *context)
     }
     else//Segfault triggered by accessing the protected data pointer.
     {
-        cphvb_instruction inst;
-        cphvb_intp size = PyArray_NBYTES(ary);
-        cphvb_array *a = PyCphVB_ARRAY(ary);
         /*
         printf("Warning - un-handle array(%p) because of "
                "direct data access(%p). size: %ld\n", a, info->si_addr, size);
         */
 
-        //Tell the VEM to syncronize the data.
-        inst.opcode = CPHVB_SYNC;
-        inst.operand[0] = a;
-        batch_schedule(&inst);
-        batch_flush();
-
-        //Make sure that the memory is allocated.
-        err = cphvb_data_malloc(a);
-        if(err != CPHVB_SUCCESS)
+        cphvb_error err = PyCphVB_UnHandleArray(ary);
+        if(err != 0)
         {
-            fprintf(stderr, "Error when allocating array (%p): %s\n",
-                            a, cphvb_error_text(err));
+            PyErr_Print();
             exit(err);
         }
-
-        //mremap does not work since a->data is not guaranteed to be
-        //page aligned.
-        if(mremap(a->data, size, size, MREMAP_FIXED|MREMAP_MAYMOVE,
-                  ary->data) == MAP_FAILED)
-        {
-            int errsv = errno;//mremap() sets the errno.
-            fprintf(stderr,"Error - could not mremap a data region."
-                           " Returned error code by mremap: %s.\n",
-                           strerror(errsv));
-            exit(errno);
-        }
-        //The cphvb data will have to be allocated again when
-        //PyCphVB_HandleArray() moves the data back again to the
-        //cphVB address space.
-        a->data = NULL;
-
-        //The array is not handled by cphVB anymore.
-        ary->cphvb_handled = 0;
-
     }
 }
 
