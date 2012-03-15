@@ -301,11 +301,13 @@ PyCphVB_HandleArray(PyArrayObject *array, int transfer_data)
  * Indicate that cphVB should NOT handle the array and all associated
  * array views and the array base.
  *
- * @array         The array cphVB should handle.
+ * @array         The array cphVB should not handle anymore.
+ * @implicitly    Whether the unhandling was invoked implicitly by
+ *                the bridge or a explicit user request.
  * @return        -1 and set exception on error, 0 on success.
  */
 static int
-PyCphVB_UnHandleArray(PyArrayObject *array)
+PyCphVB_UnHandleArray(PyArrayObject *array, int implicitly)
 {
     cphvb_instruction inst;
     PyArrayObject *base = array;
@@ -351,6 +353,17 @@ PyCphVB_UnHandleArray(PyArrayObject *array)
     //PyCphVB_HandleArray() moves the data back again to the
     //cphVB address space.
     a->data = NULL;
+
+    //The unhandling was invoked explicitly thus we should completely
+    //remove the cphvb-part of the NumPy Array Object.
+    if(!implicitly)
+    {
+        cphvb_instruction inst;
+        inst.opcode = CPHVB_DESTROY;
+        inst.operand[0] = PyCphVB_ARRAY(base);
+        batch_schedule(&inst);
+        PyCphVB_ARRAY(base) = NULL;
+    }
 
     //The array is not handled by cphVB anymore.
     base->cphvb_handled = 0;

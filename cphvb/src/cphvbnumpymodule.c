@@ -139,7 +139,7 @@ _unhandle_array(PyObject *m, PyObject *args)
         return NULL;
     }
 
-    if(PyCphVB_UnHandleArray((PyArrayObject *) obj) != 0)
+    if(PyCphVB_UnHandleArray((PyArrayObject *) obj, 0) != 0)
         return NULL;
 
     Py_RETURN_NONE;

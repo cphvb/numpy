@@ -99,13 +99,13 @@ sighandler(int signal_number, siginfo_t *info, void *context)
     }
     else//Segfault triggered by accessing the protected data pointer.
     {
-        /*
+/*
         printf("Warning - un-handle array(%p) because of "
                "direct data access(%p). size: %ld\n",
                PyCphVB_ARRAY(ary), info->si_addr, PyArray_NBYTES(ary));
-        */
+*/
 
-        cphvb_error err = PyCphVB_UnHandleArray(ary);
+        cphvb_error err = PyCphVB_UnHandleArray(ary, 1);
         if(err != 0)
         {
             PyErr_Print();

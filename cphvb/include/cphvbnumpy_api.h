@@ -79,7 +79,7 @@ extern "C" {
 
 #define PyCphVB_UnHandleArray_NUM 13
 #define PyCphVB_UnHandleArray_RETURN int
-#define PyCphVB_UnHandleArray_PROTO (PyArrayObject *array)
+#define PyCphVB_UnHandleArray_PROTO (PyArrayObject *array, int implicitly)
 
 /* Total number of C API pointers */
 #define cphVB_API_pointers 14

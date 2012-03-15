@@ -71,11 +71,13 @@ PyCphVB_HandleArray(PyArrayObject *array, int transfer_data);
  * Indicate that cphVB should NOT handle the array and all associated
  * array views and the array base.
  *
- * @array         The array cphVB should handle.
+ * @array         The array cphVB should not handle anymore.
+ * @implicitly    Whether the unhandling was invoked implicitly by
+ *                the bridge or a explicit user request.
  * @return        -1 and set exception on error, 0 on success.
  */
 static int
-PyCphVB_UnHandleArray(PyArrayObject *array);
+PyCphVB_UnHandleArray(PyArrayObject *array, int implicitly);
 
 /*
  *===================================================================
