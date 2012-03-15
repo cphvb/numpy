@@ -70,6 +70,17 @@ PyCphVB_HandleArray(PyArrayObject *array, int transfer_data);
 
 /*
  *===================================================================
+ * Indicate that cphVB should NOT handle the array and all associated
+ * array views and the array base.
+ *
+ * @array         The array cphVB should handle.
+ * @return        -1 and set exception on error, 0 on success.
+ */
+static int
+PyCphVB_UnHandleArray(PyArrayObject *array);
+
+/*
+ *===================================================================
  * Easy retrieval of array's base.
  *
  * @array         The array view (or base).

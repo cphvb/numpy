@@ -304,6 +304,71 @@ PyCphVB_HandleArray(PyArrayObject *array, int transfer_data)
 
 /*
  *===================================================================
+ * Indicate that cphVB should NOT handle the array and all associated
+ * array views and the array base.
+ *
+ * @array         The array cphVB should handle.
+ * @return        -1 and set exception on error, 0 on success.
+ */
+static int
+PyCphVB_UnHandleArray(PyArrayObject *array)
+{
+    cphvb_instruction inst;
+    PyArrayObject *base = array;
+    //Check if the array is a view because in that case we should
+    //unhandle the base array.
+    if(array->base != NULL && PyArray_CheckExact(array->base) &&
+       !PyArray_CHKFLAGS(array, NPY_UPDATEIFCOPY))
+    {
+        base = PyCphVB_BaseArray((PyArrayObject *) array);
+    }
+    cphvb_array *a = PyCphVB_ARRAY(base);
+    cphvb_intp size = PyArray_NBYTES(base);
+
+    if(a == NULL || !base->cphvb_handled)
+        return 0;//The array is already not handled by cphVB.
+
+    //Tell the VEM to syncronize the data.
+    inst.opcode = CPHVB_SYNC;
+    inst.operand[0] = a;
+    batch_schedule(&inst);
+    batch_flush();
+
+    //Make sure that the memory is allocated.
+    cphvb_error err = cphvb_data_malloc(a);
+    if(err != CPHVB_SUCCESS)
+    {
+        PyErr_Format(PyExc_RuntimeError,"Error when allocating "
+                     "array (%p): %s\n", a, cphvb_error_text(err));
+        return -1;
+    }
+
+    //mremap does not work since a->data is not guaranteed to be
+    //page aligned.
+    if(mremap(a->data, size, size, MREMAP_FIXED|MREMAP_MAYMOVE,
+              base->data) == MAP_FAILED)
+    {
+        int errsv = errno;//mremap() sets the errno.
+        PyErr_Format(PyExc_RuntimeError,"Error - could not mremap a "
+                     "data region. Returned error code by mremap: %s.\n"
+                     ,strerror(errsv));
+        return -1;
+    }
+    //The cphvb data will have to be allocated again when
+    //PyCphVB_HandleArray() moves the data back again to the
+    //cphVB address space.
+    a->data = NULL;
+
+    //The array is not handled by cphVB anymore.
+    base->cphvb_handled = 0;
+
+    return 0;
+
+}/* PyCphVB_UnHandleArray */
+
+
+/*
+ *===================================================================
  * Easy retrieval of array's base.
  *
  * @array         The array view (or base).

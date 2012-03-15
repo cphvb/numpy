@@ -122,6 +122,29 @@ _handle_array(PyObject *m, PyObject *args)
 
 /*
  * ===================================================================
+ * Python wrapper for PyCphVB_UnHandleArray.
+ */
+static PyObject *
+_unhandle_array(PyObject *m, PyObject *args)
+{
+    PyObject *obj = NULL;
+    if (!PyArg_ParseTuple(args, "O", &obj)) {
+        return NULL;
+    }
+    if(!PyArray_Check(obj))
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Must be a NumPy array.");
+        return NULL;
+    }
+
+    if(PyCphVB_UnHandleArray((PyArrayObject *) obj) != 0)
+        return NULL;
+
+    Py_RETURN_NONE;
+} /* _unhandle_array */
+
+/*
+ * ===================================================================
  * Python wrapper for PyCphVB_HandleArray.
  */
 static PyObject *
@@ -150,6 +173,8 @@ static PyMethodDef cphVBMethods[] = {
      "Executes all appending operations."},
     {"handle_array", _handle_array, METH_VARARGS,
      "Indicate that cphVB should handle the array."},
+    {"unhandle_array", _unhandle_array, METH_VARARGS,
+     "Indicate that cphVB should NOT handle the array."},
     {"fill_random", _fill_random, METH_VARARGS,
      "Fill the empty array with numpy.random.random()."},
     {NULL, NULL, 0, NULL}        /* Sentinel */
@@ -172,6 +197,7 @@ initcphvbnumpy(void)
     cphVB_API[PyCphVB_NewBaseArray_NUM] = (void *)PyCphVB_NewBaseArray;
     cphVB_API[PyCphVB_DelViewArray_NUM] = (void *)PyCphVB_DelViewArray;
     cphVB_API[PyCphVB_HandleArray_NUM] = (void *)PyCphVB_HandleArray;
+    cphVB_API[PyCphVB_UnHandleArray_NUM] = (void *)PyCphVB_UnHandleArray;
     cphVB_API[PyCphVB_MallocArray_NUM] = (void *)PyCphVB_MallocArray;
     cphVB_API[PyCphVB_MfreeArray_NUM] = (void *)PyCphVB_MfreeArray;
     cphVB_API[PyCphVB_NewViewArray_NUM] = (void *)PyCphVB_NewViewArray;

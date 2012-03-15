@@ -77,27 +77,31 @@ extern "C" {
 #define PyCphVB_Random_RETURN int
 #define PyCphVB_Random_PROTO (PyArrayObject *ary)
 
+#define PyCphVB_UnHandleArray_NUM 13
+#define PyCphVB_UnHandleArray_RETURN int
+#define PyCphVB_UnHandleArray_PROTO (PyArrayObject *array)
 
 /* Total number of C API pointers */
-#define cphVB_API_pointers 13
+#define cphVB_API_pointers 14
 
 
 #ifdef CPHVBNUMPY_MODULE
 /* This section is used when compiling distnumpymodule.c */
 
-static PyCphVB_Init_RETURN         PyCphVB_Init         PyCphVB_Init_PROTO;
-static PyCphVB_Exit_RETURN         PyCphVB_Exit         PyCphVB_Exit_PROTO;
-static PyCphVB_NewBaseArray_RETURN PyCphVB_NewBaseArray PyCphVB_NewBaseArray_PROTO;
-static PyCphVB_DelViewArray_RETURN PyCphVB_DelViewArray PyCphVB_DelViewArray_PROTO;
-static PyCphVB_HandleArray_RETURN  PyCphVB_HandleArray  PyCphVB_HandleArray_PROTO;
-static PyCphVB_MallocArray_RETURN  PyCphVB_MallocArray  PyCphVB_MallocArray_PROTO;
-static PyCphVB_MfreeArray_RETURN   PyCphVB_MfreeArray   PyCphVB_MfreeArray_PROTO;
-static PyCphVB_NewViewArray_RETURN PyCphVB_NewViewArray PyCphVB_NewViewArray_PROTO;
-static PyCphVB_Ufunc_RETURN        PyCphVB_Ufunc        PyCphVB_Ufunc_PROTO;
-static PyCphVB_BaseArray_RETURN    PyCphVB_BaseArray    PyCphVB_BaseArray_PROTO;
-static PyCphVB_Reduce_RETURN       PyCphVB_Reduce       PyCphVB_Reduce_PROTO;
-static PyCphVB_CopyInto_RETURN     PyCphVB_CopyInto     PyCphVB_CopyInto_PROTO;
-static PyCphVB_Random_RETURN       PyCphVB_Random       PyCphVB_Random_PROTO;
+static PyCphVB_Init_RETURN           PyCphVB_Init           PyCphVB_Init_PROTO;
+static PyCphVB_Exit_RETURN           PyCphVB_Exit           PyCphVB_Exit_PROTO;
+static PyCphVB_NewBaseArray_RETURN   PyCphVB_NewBaseArray   PyCphVB_NewBaseArray_PROTO;
+static PyCphVB_DelViewArray_RETURN   PyCphVB_DelViewArray   PyCphVB_DelViewArray_PROTO;
+static PyCphVB_HandleArray_RETURN    PyCphVB_HandleArray    PyCphVB_HandleArray_PROTO;
+static PyCphVB_UnHandleArray_RETURN  PyCphVB_UnHandleArray  PyCphVB_UnHandleArray_PROTO;
+static PyCphVB_MallocArray_RETURN    PyCphVB_MallocArray    PyCphVB_MallocArray_PROTO;
+static PyCphVB_MfreeArray_RETURN     PyCphVB_MfreeArray     PyCphVB_MfreeArray_PROTO;
+static PyCphVB_NewViewArray_RETURN   PyCphVB_NewViewArray   PyCphVB_NewViewArray_PROTO;
+static PyCphVB_Ufunc_RETURN          PyCphVB_Ufunc          PyCphVB_Ufunc_PROTO;
+static PyCphVB_BaseArray_RETURN      PyCphVB_BaseArray      PyCphVB_BaseArray_PROTO;
+static PyCphVB_Reduce_RETURN         PyCphVB_Reduce         PyCphVB_Reduce_PROTO;
+static PyCphVB_CopyInto_RETURN       PyCphVB_CopyInto       PyCphVB_CopyInto_PROTO;
+static PyCphVB_Random_RETURN         PyCphVB_Random         PyCphVB_Random_PROTO;
 
 
 #else
@@ -119,6 +123,9 @@ static void **cphVB_API;
 
 #define PyCphVB_HandleArray \
  (*(PyCphVB_HandleArray_RETURN (*)PyCphVB_HandleArray_PROTO) cphVB_API[PyCphVB_HandleArray_NUM])
+
+ #define PyCphVB_UnHandleArray \
+ (*(PyCphVB_UnHandleArray_RETURN (*)PyCphVB_UnHandleArray_PROTO) cphVB_API[PyCphVB_UnHandleArray_NUM])
 
 #define PyCphVB_MallocArray \
  (*(PyCphVB_MallocArray_RETURN (*)PyCphVB_MallocArray_PROTO) cphVB_API[PyCphVB_MallocArray_NUM])
