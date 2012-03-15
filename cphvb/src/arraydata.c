@@ -101,7 +101,8 @@ sighandler(int signal_number, siginfo_t *info, void *context)
     {
         /*
         printf("Warning - un-handle array(%p) because of "
-               "direct data access(%p). size: %ld\n", a, info->si_addr, size);
+               "direct data access(%p). size: %ld\n",
+               PyCphVB_ARRAY(ary), info->si_addr, PyArray_NBYTES(ary));
         */
 
         cphvb_error err = PyCphVB_UnHandleArray(ary);
