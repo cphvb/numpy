@@ -53,9 +53,6 @@ PyCphVB_MallocArray(PyArrayObject *ary, cphvb_intp size)
     }
     //Update the ary data pointer.
     PyArray_BYTES(ary) = addr;
-    //We also need to save the start and end address.
-    ary->mprotected_start = addr;
-    ary->mprotected_end = ary->mprotected_start + size;
 
     //Save the number of bytes allocated.
     ary->data_allocated = size;

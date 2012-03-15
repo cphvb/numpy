@@ -56,7 +56,9 @@ static PyArrayObject* arraycollection_get(char* addr)
     PyArrayObject *ary = arraycollection_root;
     while(ary != NULL)
     {
-        if(ary->mprotected_start <= addr && addr < ary->mprotected_end)
+        char *start = PyArray_BYTES(ary);
+        char *end = start + PyArray_NBYTES(ary);
+        if(start <= addr && addr < end)
            return ary;
 
         //Go to the next ary.

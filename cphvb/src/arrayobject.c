@@ -129,19 +129,20 @@ PyCphVB_NewViewArray(PyArrayObject *ary)
                         "view and base must be identical.\n");
         return -1;
     }
-
-    if(base->mprotected_start > data || base->mprotected_end <= data)
+    char *mprotected_start = PyArray_BYTES(base);
+    char *mprotected_end = mprotected_start + PyArray_NBYTES(base);
+    if(mprotected_start > data || mprotected_end <= data)
     {
         PyErr_Format(PyExc_RuntimeError, "PyCphVB_NewViewArray - the "
                      "view data (%p) is not inside the interval of "
                      "its base array (%p to %p).\n", data,
-                     base->mprotected_start,
-                     base->mprotected_end);
+                     mprotected_start,
+                     mprotected_end);
         PyErr_Print();
         return -1;
     }
     //Compute offset in elements from the start of the base array.
-    offset = data - base->mprotected_start;
+    offset = data - mprotected_start;
 
     //Convert bytes to element size.
     //This works because the array is behaved.
@@ -183,7 +184,6 @@ PyCphVB_DelViewArray(PyArrayObject *array)
 
         if(array->base == NULL)//It it a base array.
         {
-
             //Remove the array from the base array collection.
             arraycollection_rm(array);
         }

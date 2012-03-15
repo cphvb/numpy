@@ -54,8 +54,6 @@ extern "C" {
 #define CPHVBNUMPY_ARRAY                \
     cphvb_array*   cphvb_ary;           \
     int            cphvb_handled;       \
-    char*          mprotected_start;    \
-    char*          mprotected_end;      \
     PyArrayObject *next;                \
     PyArrayObject *prev;                \
     npy_intp       data_allocated;      \
