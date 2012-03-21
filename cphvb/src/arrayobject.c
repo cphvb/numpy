@@ -421,7 +421,7 @@ PyCphVB_Want(PyArrayObject *array)
         PyErr_Clear();
         return 0;
     }
-    if(base != NULL && PyCphVB_ARRAY(base) != NULL)
+    else if(PyCphVB_ARRAY(base) != NULL)
         return 1;
     else
         return 0;

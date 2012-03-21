@@ -89,6 +89,17 @@ PyCphVB_UnHandleArray(PyArrayObject *array, int implicitly);
 static PyArrayObject *
 PyCphVB_BaseArray(PyArrayObject *array);
 
+/*
+ *===================================================================
+ * Easy determine whenever the array wants to be handled by cphVB or
+ * not.
+ *
+ * @array         The array (view or base).
+ * @return        Boolean.
+ */
+static int
+PyCphVB_Want(PyArrayObject *array);
+
 #ifdef __cplusplus
 }
 #endif
