@@ -2689,6 +2689,28 @@ PyArray_CopyInto(PyArrayObject *dst, PyArrayObject *src)
     if((dst_base != NULL && PyCphVB_ARRAY(dst_base) != NULL) ||
        (src_base != NULL && PyCphVB_ARRAY(src_base) != NULL))
     {
+        //In order to make sure that the two array shapes match
+        //we create a new iterator.
+        PyArrayObject *op[2];
+        npy_uint32 op_flags[2];
+        NpyIter *iter;
+        op[0] = dst;
+        op[1] = src;
+        op_flags[0] = NPY_ITER_WRITEONLY;
+        op_flags[1] = NPY_ITER_READONLY;
+        iter = NpyIter_MultiNew(2, op,
+                            NPY_ITER_EXTERNAL_LOOP|
+                            NPY_ITER_REFS_OK|
+                            NPY_ITER_ZEROSIZE_OK,
+                            NPY_KEEPORDER,
+                            NPY_NO_CASTING,
+                            op_flags,
+                            NULL);
+        if(iter == NULL)
+            return -1;
+        else
+            NpyIter_Deallocate(iter);
+
         int cphret = PyCphVB_CopyInto(dst, src);
         if(cphret != 1)//PyCphVB_CopyInto() was performed.
             return cphret;
