@@ -480,15 +480,21 @@ PyArray_MoveInto(PyArrayObject *dst, PyArrayObject *src)
      * it for most cases.  It may still incorrectly handle copying of
      * partially-overlapping data elements, where the data pointer was offset
      * by a fraction of the element size.
-     *//* CPHVB - We always have to use a temporary array in CPHVB.
+     */
     if ((PyArray_NDIM(dst) == 1 &&
-                        PyArray_NDIM(src) == 1 &&
-                        PyArray_STRIDE(dst, 0) > 0 &&
-                        PyArray_STRIDE(src, 0) > 0) ||
-                        !_arrays_overlap(dst, src)) {
+         PyArray_NDIM(src) == 1 &&
+         PyArray_STRIDE(dst, 0) > 0 &&
+         PyArray_STRIDE(src, 0) > 0) &&
+         !(PyCphVB_Want(dst) || PyCphVB_Want(src)))/* CPHVB */
+    {
         return PyArray_CopyInto(dst, src);
     }
-    else */{
+    else if(!_arrays_overlap(dst, src))
+    {
+        return PyArray_CopyInto(dst, src);
+    }
+    else
+    {
         PyArrayObject *tmp;
         int ret;
 
