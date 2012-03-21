@@ -208,6 +208,7 @@ initcphvbnumpy(void)
     cphVB_API[PyCphVB_Reduce_NUM] = (void *)PyCphVB_Reduce;
     cphVB_API[PyCphVB_CopyInto_NUM] = (void *)PyCphVB_CopyInto;
     cphVB_API[PyCphVB_Random_NUM] = (void *)PyCphVB_Random;
+    cphVB_API[PyCphVB_Want_NUM] = (void *)PyCphVB_Want;
 
     /* Create a CObject containing the API pointer array's address */
     c_api_object = PyCObject_FromVoidPtr((void *)cphVB_API, NULL);

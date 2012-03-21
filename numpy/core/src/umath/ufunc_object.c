@@ -2011,9 +2011,7 @@ execute_ufunc_loop(PyUFuncObject *self,
         {
             if(op[i] != NULL)
             {
-                PyArrayObject *base = PyCphVB_BaseArray(op[i]);
-                PyErr_Clear();
-                if(base != NULL && PyCphVB_ARRAY(base) != NULL)
+                if(PyCphVB_Want(op[i]))
                 {
                     want_cphvb = 1;
                     trivial_loop_ok = 0;//It is not trivial anymore.
@@ -3194,9 +3192,7 @@ PyUFunc_ReductionOp(PyUFuncObject *self, PyArrayObject *arr,
         {
             if(op[i] != NULL)
             {
-                PyArrayObject *base = PyCphVB_BaseArray(op[i]);
-                PyErr_Clear();
-                if(base != NULL && PyCphVB_ARRAY(base) != NULL)
+                if(PyCphVB_Want(op[i]))
                 {
                     want_cphvb = 1;
                     break;

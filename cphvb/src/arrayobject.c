@@ -402,3 +402,28 @@ PyCphVB_BaseArray(PyArrayObject *array)
                     "array is not a base or a cphVB compatible view.\n");
     return NULL;
 }/* PyCphVB_BaseArray */
+
+
+/*
+ *===================================================================
+ * Easy determine whenever the array wants to be handled by cphVB or
+ * not.
+ *
+ * @array         The array (view or base).
+ * @return        Boolean.
+ */
+static int
+PyCphVB_Want(PyArrayObject *array)
+{
+    PyArrayObject *base = PyCphVB_BaseArray(array);
+    if(base == NULL)
+    {
+        PyErr_Clear();
+        return 0;
+    }
+    if(base != NULL && PyCphVB_ARRAY(base) != NULL)
+        return 1;
+    else
+        return 0;
+
+}/* PyCphVB_Want */
