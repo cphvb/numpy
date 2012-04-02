@@ -2,11 +2,13 @@ import numpy as np
 import numpytest
 import cphvbnumpy
 
+type=np.float32
+
 def jacobi_sencil(H,W,Dist):
-    full = np.zeros((H+2,W+2), dtype=np.double)
-    work = np.zeros((H,W), dtype=np.double)
-    diff = np.zeros((H,W), dtype=np.double)
-    tmpdelta = np.zeros((H), dtype=np.double)
+    full = np.zeros((H+2,W+2), dtype=type)
+    work = np.zeros((H,W), dtype=type)
+    diff = np.zeros((H,W), dtype=type)
+    tmpdelta = np.zeros((H), dtype=type)
 
     if Dist:
         cphvbnumpy.handle_array(full)

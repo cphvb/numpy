@@ -2,13 +2,15 @@ import numpy as np
 import numpytest
 import cphvbnumpy
 
+type=np.float32
+
 def SOR(H,W,Dist):
     if W%2 > 0 or H%2 > 0:
         raise Exception("Each dimension must have an even size.")
 
-    full = np.zeros((H+2,W+2), dtype=np.double)
-    diff = np.zeros((H/2,W/2), dtype=np.double)
-    tmpdelta = np.zeros((H/2), dtype=np.double)
+    full = np.zeros((H+2,W+2), dtype=type)
+    diff = np.zeros((H/2,W/2), dtype=type)
+    tmpdelta = np.zeros((H/2), dtype=type)
     if Dist:
         cphvbnumpy.handle_array(full)
         cphvbnumpy.handle_array(diff)
