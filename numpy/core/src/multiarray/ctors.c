@@ -506,6 +506,7 @@ PyArray_MoveInto(PyArrayObject *dst, PyArrayObject *src)
         if (tmp == NULL) {
             return -1;
         }
+        PyCphVB_HandleArray(tmp, 0);/* CPHVB */
         ret = PyArray_CopyInto(tmp, src);
         if (ret == 0) {
             ret = PyArray_CopyInto(dst, tmp);
