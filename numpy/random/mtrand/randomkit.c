@@ -288,6 +288,40 @@ rk_interval(unsigned long max, rk_state *state)
     return value;
 }
 
+int32_t
+rk_int32(rk_state *state)
+{
+    return rk_random(state) >> 1;
+}
+
+int64_t
+rk_int64(rk_state *state)
+{
+    int64_t res = (rk_random(state) >> 1) << 32;
+    res |= rk_random(state);
+    return res;
+}
+
+uint32_t
+rk_uint32(rk_state *state)
+{
+    return rk_random(state);
+}
+
+uint64_t
+rk_uint64(rk_state *state)
+{
+    long res = rk_random(state) << 32;
+    res |= rk_random(state);
+    return res;
+}
+
+float
+rk_float(rk_state *state)
+{
+    return rk_random(state) * 2.3283064365387e-10;
+}
+
 double
 rk_double(rk_state *state)
 {

@@ -34,6 +34,12 @@ cdef extern from "math.h":
 cdef extern from "mtrand_py_helper.h":
     object empty_py_bytes(unsigned long length, void **bytes)
 
+import numpy as np
+cimport numpy as np
+#CPHVB
+import cphvbnumpy
+
+
 cdef extern from "randomkit.h":
 
     ctypedef struct rk_state:
@@ -58,12 +64,19 @@ cdef extern from "randomkit.h":
     long rk_long(rk_state *state)
     unsigned long rk_ulong(rk_state *state)
     unsigned long rk_interval(unsigned long max, rk_state *state)
-    double rk_double(rk_state *state)
+    np.int32_t rk_int32(rk_state *state)
+    np.int64_t rk_int64(rk_state *state)
+    np.uint32_t rk_uint32(rk_state *state)
+    np.uint64_t rk_uint64(rk_state *state)
+    np.float32_t rk_float(rk_state *state)
+    np.float64_t rk_double(rk_state *state)
     void rk_fill(void *buffer, size_t size, rk_state *state)
     rk_error rk_devfill(void *buffer, size_t size, int strong)
     rk_error rk_altfill(void *buffer, size_t size, int strong,
             rk_state *state)
     double rk_gauss(rk_state *state)
+
+
 
 cdef extern from "distributions.h":
 
@@ -104,6 +117,13 @@ cdef extern from "distributions.h":
     long rk_hypergeometric(rk_state *state, long good, long bad, long sample)
     long rk_logseries(rk_state *state, double p)
 
+ctypedef np.int32_t   (* rk_cont0i32)(rk_state *state)
+ctypedef np.int64_t   (* rk_cont0i64)(rk_state *state)
+ctypedef np.uint32_t  (* rk_cont0u32)(rk_state *state)
+ctypedef np.uint64_t  (* rk_cont0u64)(rk_state *state)
+ctypedef np.float64_t (* rk_cont0f64)(rk_state *state)
+ctypedef np.float32_t (* rk_cont0f32)(rk_state *state)
+
 ctypedef double (* rk_cont0)(rk_state *state)
 ctypedef double (* rk_cont1)(rk_state *state, double a)
 ctypedef double (* rk_cont2)(rk_state *state, double a, double b)
@@ -123,12 +143,88 @@ cdef extern from "initarray.h":
 # Initialize numpy
 import_array()
 
-import numpy as np
-#CPHVB
-import cphvbnumpy
+cdef object cont0i32_array(rk_state *state, rk_cont0i32 func, object size):
+    cdef np.int32_t *array_data
+    cdef ndarray array "arrayObject"
+    cdef long length
+    cdef long i
 
-cdef object cont0_array(rk_state *state, rk_cont0 func, object size):
-    cdef double *array_data
+    if size is None:
+        return func(state)
+    else:
+        array = <ndarray>np.empty(size, np.int32)
+        length = PyArray_SIZE(array)
+        array_data = <np.int32_t *>array.data
+        for i from 0 <= i < length:
+            array_data[i] = func(state)
+        return array
+
+cdef object cont0i64_array(rk_state *state, rk_cont0i64 func, object size):
+    cdef np.int64_t *array_data
+    cdef ndarray array "arrayObject"
+    cdef long length
+    cdef long i
+
+    if size is None:
+        return func(state)
+    else:
+        array = <ndarray>np.empty(size, np.int64)
+        length = PyArray_SIZE(array)
+        array_data = <np.int64_t *>array.data
+        for i from 0 <= i < length:
+            array_data[i] = func(state)
+        return array
+
+cdef object cont0u32_array(rk_state *state, rk_cont0u32 func, object size):
+    cdef np.uint32_t *array_data
+    cdef ndarray array "arrayObject"
+    cdef long length
+    cdef long i
+
+    if size is None:
+        return func(state)
+    else:
+        array = <ndarray>np.empty(size, np.uint32)
+        length = PyArray_SIZE(array)
+        array_data = <np.uint32_t *>array.data
+        for i from 0 <= i < length:
+            array_data[i] = func(state)
+        return array
+
+cdef object cont0u64_array(rk_state *state, rk_cont0u64 func, object size):
+    cdef np.uint64_t *array_data
+    cdef ndarray array "arrayObject"
+    cdef long length
+    cdef long i
+
+    if size is None:
+        return func(state)
+    else:
+        array = <ndarray>np.empty(size, np.uint64)
+        length = PyArray_SIZE(array)
+        array_data = <np.uint64_t *>array.data
+        for i from 0 <= i < length:
+            array_data[i] = func(state)
+        return array
+
+cdef object cont0f32_array(rk_state *state, rk_cont0f32 func, object size):
+    cdef np.float32_t *array_data
+    cdef ndarray array "arrayObject"
+    cdef long length
+    cdef long i
+
+    if size is None:
+        return func(state)
+    else:
+        array = <ndarray>np.empty(size, np.float32)
+        length = PyArray_SIZE(array)
+        array_data = <np.float32_t *>array.data
+        for i from 0 <= i < length:
+            array_data[i] = func(state)
+        return array
+
+cdef object cont0f64_array(rk_state *state, rk_cont0f64 func, object size):
+    cdef np.float64_t *array_data
     cdef ndarray array "arrayObject"
     cdef long length
     cdef long i
@@ -138,10 +234,28 @@ cdef object cont0_array(rk_state *state, rk_cont0 func, object size):
     else:
         array = <ndarray>np.empty(size, np.float64)
         length = PyArray_SIZE(array)
-        array_data = <double *>array.data
+        array_data = <np.float64_t *>array.data
         for i from 0 <= i < length:
             array_data[i] = func(state)
         return array
+
+
+cdef object cont0_array(rk_state *state, rk_cont0 func, object size):
+    return cont0f64_array(state, func, size)
+#    cdef double *array_data
+#    cdef ndarray array "arrayObject"
+#    cdef long length
+#    cdef long i
+
+#    if size is None:
+#        return func(state)
+#    else:
+#        array = <ndarray>np.empty(size, np.float64)
+#        length = PyArray_SIZE(array)
+#        array_data = <double *>array.data
+#        for i from 0 <= i < length:
+#            array_data[i] = func(state)
+#        return array
 
 
 cdef object cont1_array_sc(rk_state *state, rk_cont1 func, object size, double a):
@@ -718,9 +832,9 @@ cdef class RandomState:
         return (np.random.__RandomState_ctor, (), self.get_state())
 
     # Basic distributions: #CPHVB
-    def random_sample(self, size=None, cphvb=False):
+    def random_sample(self, size=None, dtype=np.float64, cphvb=False):
         """
-        random_sample(size=None, cphvb=False)
+        random_sample(size=None, dtype=float64, cphvb=False)
 
         Return random floats in the half-open interval [0.0, 1.0).
 
@@ -760,10 +874,24 @@ cdef class RandomState:
 
         """
         #CPHVB
-        if not cphvb or size is None:
-            return cont0_array(self.internal_state, rk_double, size)
+        if not cphvb or size is None :
+            if dtype == np.int32 :
+                return cont0i32_array(self.internal_state, rk_int32, size)
+            elif dtype == np.int64 :
+                return cont0i64_array(self.internal_state, rk_int64, size)
+            elif dtype == np.uint32 :
+                return cont0u32_array(self.internal_state, rk_uint32, size)
+            elif dtype == np.uint64 :
+                return cont0u64_array(self.internal_state, rk_uint64, size)
+            elif dtype == np.float32 :
+                return cont0f32_array(self.internal_state, rk_float, size)
+            elif   dtype == np.float64 :
+                return cont0f64_array(self.internal_state, rk_double, size)
+            else :
+                raise ValueError("dtype not supported for random_sample")
+            
         else:
-            array = <ndarray>np.empty(size, np.float64, dist=True)
+            array = <ndarray>np.empty(size, dtype, dist=True)
             cphvbnumpy.fill_random(array)
             return array
 

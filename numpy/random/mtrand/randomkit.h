@@ -57,6 +57,7 @@
  */
 
 #include <stddef.h>
+#include <stdint.h>
 
 #ifndef _RANDOMKIT_
 #define _RANDOMKIT_
@@ -147,6 +148,31 @@ extern unsigned long rk_ulong(rk_state *state);
  * Returns a random unsigned long between 0 and max inclusive.
  */
 extern unsigned long rk_interval(unsigned long max, rk_state *state);
+
+/*
+ * Returns a random int32_t between 0 and INT32_MAX inclusive.
+ */
+extern int32_t rk_int32(rk_state *state);
+
+/*
+ * Returns a random int64_t between 0 and INT64_MAX inclusive.
+ */
+extern int64_t rk_int64(rk_state *state);
+
+/*
+ * Returns a random uint32_t between 0 and UINT32_MAX inclusive.
+ */
+extern uint32_t rk_uint32(rk_state *state);
+
+/*
+ * Returns a random uint64_t between 0 and UINT64_MAX inclusive.
+ */
+extern uint64_t rk_uint64(rk_state *state);
+
+/*
+ * Returns a random float between 0.0 and 1.0, 1.0 excluded.
+ */
+extern float rk_float(rk_state *state);
 
 /*
  * Returns a random double between 0.0 and 1.0, 1.0 excluded.
