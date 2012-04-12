@@ -297,8 +297,8 @@ rk_int32(rk_state *state)
 int64_t
 rk_int64(rk_state *state)
 {
-    int64_t res = (rk_random(state) >> 1) << 32;
-    res |= rk_random(state);
+    int64_t res = (rk_random(state) >> 1);
+    res = (res << 32) | rk_random(state);
     return res;
 }
 
@@ -311,8 +311,8 @@ rk_uint32(rk_state *state)
 uint64_t
 rk_uint64(rk_state *state)
 {
-    long res = rk_random(state) << 32;
-    res |= rk_random(state);
+    uint64_t res = rk_random(state);
+    res = (res << 32) | rk_random(state);
     return res;
 }
 
