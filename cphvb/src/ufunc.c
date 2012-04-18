@@ -104,8 +104,6 @@ PyCphVB_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
                                    inst.operand[i]->start,
                                    shape,
                                    stride,
-                                   NPY_FALSE,
-                                   (cphvb_constant)0L,
                                    &tary);
             if(err)
             {

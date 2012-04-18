@@ -70,8 +70,7 @@ PyCphVB_NewBaseArray(PyArrayObject *ary)
         }
     }
     err = vem_create_array(NULL, dtype, ndims, 0, shape,
-                           stride, 0, (cphvb_constant)0L,
-                           &PyCphVB_ARRAY(ary));
+                           stride, &PyCphVB_ARRAY(ary));
     assert(PyCphVB_ARRAY(ary) != NULL);
     return err;
 } /* PyCphVB_NewBaseArray */
@@ -154,10 +153,10 @@ PyCphVB_NewViewArray(PyArrayObject *ary)
         assert(PyArray_STRIDE(ary,i) % PyArray_ITEMSIZE(ary) == 0);
     }
     //Tell the VEM.
-    err = vem_create_array(PyCphVB_ARRAY(base),
-                           dtype, PyArray_NDIM(ary), offset,
-                           PyArray_DIMS(ary), strides, 0,
-                           (cphvb_constant)0L, &PyCphVB_ARRAY(ary));
+    err = vem_create_array(PyCphVB_ARRAY(base), dtype, 
+                           PyArray_NDIM(ary), offset,
+                           PyArray_DIMS(ary), strides, 
+                           &PyCphVB_ARRAY(ary));
     return err;
 } /* PyCphVB_NewViewArray */
 
