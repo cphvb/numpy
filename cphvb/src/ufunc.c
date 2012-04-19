@@ -40,10 +40,26 @@ PyCphVB_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
     if(ufunc->nargs > CPHVB_MAX_NO_OPERANDS)
         return 1;//To many arguments.
 
-    //Make sure cphVB handles all operands.
-    for(i=0; i<ufunc->nargs; ++i)
+    //Make sure cphVB handles all output operands.
+    for(i=ufunc->nin; i<ufunc->nargs; ++i)
     {
         if(PyCphVB_HandleArray(op[i], 1) != 0)
+        {
+            PyErr_Clear();
+            return 1;//This in not a fatal error.
+        }
+    }
+
+    cphvb_intp constant = 0;
+    //Make sure cphVB handles all input operands and detect instruction constant
+    for(i=0; i<ufunc->nin; ++i)
+    {
+        PyArrayObject *ary = op[i];
+        if (PyArray_IsZeroDim(ary) && !constant)
+        {
+            constant = i + ufunc->nout;
+        }
+        else if(PyCphVB_HandleArray(ary, 1) != 0)
         {
             PyErr_Clear();
             return 1;//This in not a fatal error.
@@ -55,8 +71,20 @@ PyCphVB_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
     inst.opcode = ufunc->opcode;
     for(i=0; i<ufunc->nin; ++i)
     {
+        PyArrayObject *ary = op[i];
         cphvb_intp j = i + ufunc->nout;
-        inst.operand[j] = PyCphVB_ARRAY(op[i]);
+        if (j == constant)
+        {
+            inst.operand[j] = NULL;
+            if (cphvb_set_constant(ary, &inst.constant, &inst.constant_type) != CPHVB_SUCCESS)
+            {
+                return 1;
+            }
+        }
+        else
+        {
+            inst.operand[j] = PyCphVB_ARRAY(ary);
+        }
     }
     for(i=0; i<ufunc->nout; ++i)
     {
@@ -68,6 +96,10 @@ PyCphVB_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
     //appending and extending 1-length dimensions.
     for(i=ufunc->nout; i<ufunc->nargs; ++i)
     {
+        if (i == constant)
+        {
+            continue;
+        }
         cphvb_intp j;
         cphvb_intp shape[CPHVB_MAXDIM];
         cphvb_intp stride[CPHVB_MAXDIM];
@@ -124,7 +156,7 @@ PyCphVB_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
     //Check for data overlap.
     for(i=ufunc->nout; i<ufunc->nargs; ++i)
     {
-        if(cphvb_array_conflict(inst.operand[0], inst.operand[i]))
+        if(i != constant && cphvb_array_conflict(inst.operand[0], inst.operand[i]))
             data_overlap = 1;
     }
     err = 0;

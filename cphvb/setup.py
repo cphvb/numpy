@@ -52,6 +52,7 @@ def build(build_path):
                                           join('cphvb','src','random.c'),
                                           join('cphvb','src','random.h'),
                                           join('cphvb','src','types.h'),
+                                          join('cphvb','src','types.c'),
                                           join('cphvb','src','ufunc.c'),
                                           join('cphvb','src','ufunc.h'),
                                           join('cphvb','src','copyinto.c'),

@@ -44,6 +44,7 @@
 #include "reduce.c"
 #include "copyinto.c"
 #include "random.c"
+#include "types.c"
 
 /*
  * ===================================================================
