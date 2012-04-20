@@ -78,6 +78,9 @@ const cphvb_type const type_py2cph[] =
     [NPY_STRING]      = CPHVB_UNKNOWN,
     [NPY_UNICODE]     = CPHVB_UNKNOWN,
     [NPY_VOID]        = CPHVB_UNKNOWN,
+    [NPY_DATETIME]    = CPHVB_UNKNOWN,
+    [NPY_TIMEDELTA]   = CPHVB_UNKNOWN,
+    [NPY_HALF]        = CPHVB_FLOAT16,
     [NPY_NTYPES]      = CPHVB_UNKNOWN,
     [NPY_NOTYPE]      = CPHVB_UNKNOWN,
     [NPY_CHAR]        = CPHVB_UNKNOWN,
@@ -101,6 +104,7 @@ const cphvb_type const type_cph2py[] =
     #endif
     [CPHVB_INT64]   = NPY_LONGLONG,
     [CPHVB_UINT64]  = NPY_ULONGLONG,
+    [CPHVB_FLOAT16] = NPY_HALF,
     [CPHVB_FLOAT32] = NPY_FLOAT,
     [CPHVB_FLOAT64] = NPY_DOUBLE
 };

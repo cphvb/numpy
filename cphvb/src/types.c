@@ -63,6 +63,9 @@ cphvb_error cphvb_set_constant(PyArrayObject* ary, cphvb_constant* constant)
     case NPY_ULONGLONG:
         constant->value.uint64 = *(npy_ulonglong*)ary->data;
         return CPHVB_SUCCESS;
+    case NPY_HALF:
+        constant->value.float16 = *(npy_half*)ary->data;
+        return CPHVB_SUCCESS;
     case NPY_FLOAT:
         constant->value.float32 = *(npy_float*)ary->data;
         return CPHVB_SUCCESS;
