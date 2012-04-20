@@ -19,55 +19,55 @@
 
 #include "types.h"
 
-cphvb_error cphvb_set_constant(PyArrayObject* ary, cphvb_constant* constant, cphvb_type* type)
+cphvb_error cphvb_set_constant(PyArrayObject* ary, cphvb_constant* constant)
 {
-    *type = type_py2cph[PyArray_TYPE(ary)];  
+    constant->type = type_py2cph[PyArray_TYPE(ary)];  
     switch (PyArray_TYPE(ary))
     {
     case NPY_BOOL:
-        constant->bool8 = *(npy_bool*)ary->data;
+        constant->value.bool8 = *(npy_bool*)ary->data;
         return CPHVB_SUCCESS;
     case NPY_BYTE:
-        constant->int8 = *(npy_byte*)ary->data;
+        constant->value.int8 = *(npy_byte*)ary->data;
         return CPHVB_SUCCESS;
     case NPY_UBYTE:
-        constant->uint8 = *(npy_ubyte*)ary->data;
+        constant->value.uint8 = *(npy_ubyte*)ary->data;
         return CPHVB_SUCCESS;
     case NPY_SHORT:
-        constant->int16 = *(npy_short*)ary->data;
+        constant->value.int16 = *(npy_short*)ary->data;
         return CPHVB_SUCCESS;
     case NPY_USHORT:
-        constant->uint16 = *(npy_ushort*)ary->data;
+        constant->value.uint16 = *(npy_ushort*)ary->data;
         return CPHVB_SUCCESS;
 #if NPY_BITSOF_LONG == 32
     case NPY_LONG:
 #endif
     case NPY_INT:
-        constant->int32 = *(npy_int*)ary->data;
+        constant->value.int32 = *(npy_int*)ary->data;
         return CPHVB_SUCCESS;
 #if NPY_BITSOF_LONG == 32
     case NPY_ULONG:
 #endif
     case NPY_UINT:
-        constant->uint32 = *(npy_uint*)ary->data;
+        constant->value.uint32 = *(npy_uint*)ary->data;
         return CPHVB_SUCCESS;
 #if NPY_BITSOF_LONG == 64
     case NPY_LONG:
 #endif
     case NPY_LONGLONG:
-        constant->int64 = *(npy_longlong*)ary->data;
+        constant->value.int64 = *(npy_longlong*)ary->data;
         return CPHVB_SUCCESS;
 #if NPY_BITSOF_LONG == 64
     case NPY_ULONG:
 #endif
     case NPY_ULONGLONG:
-        constant->uint64 = *(npy_ulonglong*)ary->data;
+        constant->value.uint64 = *(npy_ulonglong*)ary->data;
         return CPHVB_SUCCESS;
     case NPY_FLOAT:
-        constant->float32 = *(npy_float*)ary->data;
+        constant->value.float32 = *(npy_float*)ary->data;
         return CPHVB_SUCCESS;
     case NPY_DOUBLE:
-        constant->float64 = *(npy_double*)ary->data;
+        constant->value.float64 = *(npy_double*)ary->data;
         return CPHVB_SUCCESS;
     default:
         return CPHVB_ERROR;

@@ -105,7 +105,7 @@ const cphvb_type const type_cph2py[] =
     [CPHVB_FLOAT64] = NPY_DOUBLE
 };
 
-cphvb_error cphvb_set_constant(PyArrayObject* ary, cphvb_constant* constant, cphvb_type* type);
+cphvb_error cphvb_set_constant(PyArrayObject* ary, cphvb_constant* constant);
 
 #ifdef __cplusplus
 }

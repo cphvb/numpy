@@ -76,7 +76,7 @@ PyCphVB_Ufunc(PyUFuncObject *ufunc, PyArrayObject **op)
         if (j == constant)
         {
             inst.operand[j] = NULL;
-            if (cphvb_set_constant(ary, &inst.constant, &inst.constant_type) != CPHVB_SUCCESS)
+            if (cphvb_set_constant(ary, &inst.constant) != CPHVB_SUCCESS)
             {
                 return 1;
             }
